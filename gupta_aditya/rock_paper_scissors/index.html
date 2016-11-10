@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rock Paper Scissors</title>
+<link rel="stylesheet" type="text/css" href="_CSS/style.css">
+<script src="_JS/game.js"></script>
+</head>
+
+<body>
+<div class="rounded-div">
+  <div id="heading">
+    <h1>Rock, Paper, Scissors Game</h1>
+    <h3>Make your selection and click Play to start</h3>
+  </div>
+  <!-- outcome -->
+  <p id="game-text"></p>
+  <!-- user and computer choices -->
+  <p id="choices"></p>
+  <!-- win, loss, tie counts -->
+  <p id="count"></p>
+  
+  <div class="radio-choice">
+  <input type="radio" name="user-choice" value="rock" checked>
+  Rock<br>
+  <input type="radio" name="user-choice" value="paper">
+  Paper<br>
+  <input type="radio" name="user-choice" value="scissors">
+  Scissors
+  </div>
+  
+  <button onclick="playGame();" id="play-button">Play</button>
+</div>
+</body>
+</html>

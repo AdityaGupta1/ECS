@@ -1,0 +1,51 @@
+/* repeating background image */
+body {
+	background-image: url('../_img/background.png');
+	background-repeat: repeat;
+}
+
+/* main rounded div */
+.rounded-div {
+	width: 85%;
+	margin: auto;
+	background-color: rgb(220, 0, 0);
+	box-sizing: border-box;
+	padding: 10px;
+	border-radius: 50px;
+}
+
+/* because I hate Times New Roman */
+h1, h2, h3, h4, h5, h6, p, form, select, .button-div {
+	font-family: Verdana;
+}
+
+p {
+	padding: 5px;
+	text-align: justify;
+	text-justify: inter-word;
+}
+
+/* dragon and treasure images */
+.main-image {
+	height:150px;
+	padding:10px;
+}
+
+button {
+	display: table;
+	padding: 5px;
+	background-color: #BBBBBB;
+	border-radius: 5px;
+	margin: auto;
+	text-align: center;
+}
+
+#game-text, #game-image, #score, #high-score, #inventory {
+	text-align: center;
+}
+
+/* inventory item image */
+.small-image {
+	height:30px;
+	vertical-align: middle;
+}
