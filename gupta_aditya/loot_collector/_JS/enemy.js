@@ -10,7 +10,7 @@ function createEnemyBulletGroup(sprite) {
     return enemyBullets;
 }
 
-function Enemy (x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay) {
+function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay) {
     Phaser.Sprite.call(this, game, x, y, sprite);
 
     this.maxHealth = maxHealth;

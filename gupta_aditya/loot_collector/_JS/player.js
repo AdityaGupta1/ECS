@@ -10,8 +10,8 @@ function playerShoot() {
                 ));
             setTimeout(function () {
                 bullet.kill();
-            }, getWeaponStat('lifetime'));
-            game.physics.arcade.moveToPointer(bullet, getWeaponStat('speed'));
+            }, /* getWeaponStat('lifetime') */ 750);
+            game.physics.arcade.moveToPointer(bullet, /* getWeaponStat('speed') */ 300);
             bullet.anchor.set(0.5);
             bullet.rotation = game.physics.arcade.angleToPointer(bullet) + (pi / 4);
             game.world.sendToBack(bullet);
@@ -103,8 +103,19 @@ function eightWayMovement() {
             player.body.velocity.x = diagonalSpeed;
             player.body.velocity.y = diagonalSpeed;
             break;
+        // none
         default:
             player.body.velocity.x = 0;
             player.body.velocity.y = 0;
+    }
+}
+
+// regenerate health
+function regenLife() {
+    if (game.time.now > nextRegen) {
+        nextRegen = game.time.now + regenRate;
+        if (getStat("life") < getStat("maxLife")) {
+            changeStat("life", 1);
+        }
     }
 }

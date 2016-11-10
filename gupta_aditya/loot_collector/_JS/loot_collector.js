@@ -21,6 +21,7 @@ var dKey;
 
 // player stats
 var playerStats = {
+    "maxLife": 500,
     "life": 500,
     "attack": 50,
     "defense": 10,
@@ -28,16 +29,23 @@ var playerStats = {
     "dexterity": 40
 };
 
-// player weapon stats
-var weaponStats = {
-    "damage": 50,
-    "speed": 300,
-    "lifetime": 750
-};
+// // player weapon stats
+// var weaponStats = {
+//     "damage": 50,
+//     "speed": 300,
+//     "lifetime": 750
+// };
 
 // player firing
 var fireRate = 0;
 var nextFire = 0;
+
+// health regen
+var nextRegen = 0;
+var regenRate = 100;
+
+// enemy bullets
+var enemyBulletList = [];
 
 // math
 const pi = Math.PI;
@@ -47,9 +55,17 @@ function getStat(stat) {
     return playerStats[stat];
 }
 
-function getWeaponStat(stat) {
-    return weaponStats[stat];
+function setStat(stat, value) {
+    playerStats[stat] = value;
 }
+
+function changeStat(stat, change) {
+    setStat(stat, getStat(stat) + change);
+}
+
+// function getWeaponStat(stat) {
+//     return weaponStats[stat];
+// }
 
 function preload() {
     // player
@@ -96,12 +112,27 @@ function create() {
 
     fireRate = getStat("dexterity") * 10;
 
-    enemies.add(new Enemy(500, 300, 'small_demon', 500, 'random', 300, createEnemyBulletGroup("small_demon_bullet"), 5, 50, 1000));
+    var smallDemonBullets = createEnemyBulletGroup("small_demon_bullet");
+    enemies.add(new Enemy(500, 300, 'small_demon', 500, 'random', 300, smallDemonBullets, 5, 50, 1000));
+    enemyBulletList.push(smallDemonBullets);
 
     player.body.collideWorldBounds = true;
 }
 
+// called when an enemy bullet hits the player
+function playerDamageHandler(player, enemyBullet) {
+    enemyBullet.kill();
+    changeStat("life", -enemyBullet.damage);
+}
+
 function update() {
+    for (var i = 0; i < enemyBulletList.length; i++) {
+        game.physics.arcade.overlap(player, enemyBulletList[i], playerDamageHandler, null, this);
+    }
+
+    console.log(getStat("life"));
+
     eightWayMovement();
     playerShoot();
+    regenLife();
 }
