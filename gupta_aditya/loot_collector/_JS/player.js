@@ -3,18 +3,21 @@
  */
 function playerShoot() {
     if (game.input.activePointer.isDown) {
-        if (game.time.now > nextFire && playerBullets.countDead() > 0) {
+        if (game.time.now > nextFire && playerBullets.countDead() > 0 && player.alive) {
             nextFire = game.time.now + fireRate;
             var bullet = playerBullets.getFirstDead();
             bullet.reset(player.x + (player.width / 2), player.y + (player.height / 2
                 ));
-            setTimeout(function () {
-                bullet.kill();
-            }, /* getWeaponStat('lifetime') */ 750);
-            game.physics.arcade.moveToPointer(bullet, /* getWeaponStat('speed') */ 300);
+            game.physics.arcade.moveToPointer(bullet, 300);
+            // fixes rotation
             bullet.anchor.set(0.5);
+            // radians, not degrees
             bullet.rotation = game.physics.arcade.angleToPointer(bullet) + (pi / 4);
             game.world.sendToBack(bullet);
+            // kill bullet after a certain amount of time
+            setTimeout(function () {
+                bullet.kill();
+            }, 1500);
         }
     }
 }

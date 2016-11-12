@@ -9,7 +9,6 @@ var game = new Phaser.Game(1000, 600, Phaser.AUTO, 'loot-collector', {
 var player;
 var t1_bullet;
 var playerBullets;
-var enemyBullets;
 var enemies;
 
 // wasd keys
@@ -25,7 +24,7 @@ var playerStats = {
     'attack': 50,
     'defense': 10,
     'speed': 40,
-    'dexterity': 40
+    'dexterity': 50
 };
 
 // player firing
@@ -101,8 +100,7 @@ function create() {
     fireRate = getStat('dexterity') * 10;
 
     var smallDemonBullets = createEnemyBulletGroup('small_demon_bullet');
-    enemies.add(new Enemy(500, 300, 'small_demon', 500, 'random', 300, smallDemonBullets, 5, 50, 1000));
-    enemyBulletList.push(smallDemonBullets);
+    enemies.add(new Enemy(500, 300, 'small_demon', 500, 'random', 300, smallDemonBullets, 5, 50, 1000, 10));
 
     player.body.collideWorldBounds = true;
 
@@ -127,7 +125,13 @@ function create() {
 // called when an enemy bullet hits the player
 function playerDamageHandler(player, enemyBullet) {
     enemyBullet.kill();
-    changeStat("life", -enemyBullet.damage);
+    var damage = enemyBullet.damage;
+    var defense = getStat('defense');
+    // defense subtracts from damage, but the enemy bullet has to deal at least 10% of its original damage
+    changeStat('life', (damage - defense) < (damage * 0.1) ? ((-damage) * 0.1) : ((-damage) + defense));
+    if (getStat('life') < 0) {
+        player.kill();
+    }
 }
 
 function update() {
@@ -135,6 +139,8 @@ function update() {
     for (var i = 0; i < enemyBulletList.length; i++) {
         game.physics.arcade.overlap(player, enemyBulletList[i], playerDamageHandler, null, this);
     }
+
+    game.physics.arcade.overlap(enemies, playerBullets, enemyDamageHandler, null, this);
 
     playerHealthBar.setPercent((getStat('life') / getStat('maxLife')) * 100);
 
