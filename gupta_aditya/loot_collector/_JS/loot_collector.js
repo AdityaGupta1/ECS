@@ -45,7 +45,7 @@ const pi = Math.PI;
 const sqrt2 = Math.sqrt(2);
 
 function getStat(stat) {
-    return parseInt(playerStats[stat]);
+    return playerStats[stat];
 }
 
 function setStat(stat, value) {
@@ -56,6 +56,9 @@ function changeStat(stat, change) {
     setStat(stat, getStat(stat) + change);
 }
 
+/**
+ * load images
+ */
 function preload() {
     // player
     game.load.image('wizard', '_img/player/wizard.png');
@@ -70,6 +73,9 @@ function preload() {
     game.load.image('small_demon_bullet', '_img/enemy_bullet/small_demon_bullet.png');
 }
 
+/**
+ * create sprites, bind keys, general pre-game stuff
+ */
 function create() {
     // debug plugin (for development purposes)
     game.add.plugin(Phaser.Plugin.Debug);
@@ -99,7 +105,6 @@ function create() {
     dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
 
     fireRate = getStat('dexterity') * 10;
-
     for (var i = 0; i < 10; i++) {
         var enemy = new Enemy(100, 100, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 1500, 25, 1000, 10);
         enemies.add(enemy);
@@ -125,16 +130,24 @@ function create() {
     playerHealthBar = new HealthBar(game, playerHealthBarConfig)
 }
 
+/**
+ * creates a damage text which moves upwards then disappears
+ */
 function createDamageText(x, y, damage) {
+    // add text
     var damageText = game.add.text(x, y - 5, '-' + damage, damageTextStyle);
     game.physics.enable(damageText, Phaser.Physics.ARCADE);
+    // moves upwards
     damageText.body.velocity.y = -50;
+    // dies after 0.5 seconds
     setTimeout(function (){
         damageText.kill();
     }, 500);
 }
 
-// called when an enemy bullet hits the player
+/**
+ * called when an enemy bullet hits the player
+ */
 function playerDamageHandler(player, enemyBullet) {
     enemyBullet.kill();
     var damage = enemyBullet.damage;
@@ -142,25 +155,34 @@ function playerDamageHandler(player, enemyBullet) {
     // defense subtracts from damage, but the enemy bullet has to deal at least 10% of its original damage
     var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
 
+    // decrement life by finalDamagee
     changeStat('life', -finalDamage);
 
-    if (getStat('life') < 0) {
+    // check if player is dead
+    if (getStat('life') <= 0) {
         player.kill();
     }
 
+    // create damage text
     createDamageText(player.x, player.y - 5, finalDamage);
 }
 
+/**
+ * general update
+ */
 function update() {
     // check if player is touching enemy bullets
     for (var i = 0; i < enemyBulletList.length; i++) {
         game.physics.arcade.overlap(player, enemyBulletList[i], playerDamageHandler, null, this);
     }
 
+    // check if player bullets are touching enemies
     game.physics.arcade.overlap(enemies, playerBullets, enemyDamageHandler, null, this);
 
+    // update health bar
     playerHealthBar.setPercent((getStat('life') / getStat('maxLife')) * 100);
 
+    // player movement, shooting, health regeneration
     eightWayMovement();
     playerShoot();
     regenLife();

@@ -1,20 +1,29 @@
+/**
+ * creates a pool of enemy bullets
+ */
 function createEnemyBulletGroup(sprite) {
     var enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
 
+    // 100 bullet pool
     enemyBullets.createMultiple(100, sprite);
     enemyBullets.setAll('checkWorldBounds', true);
     enemyBullets.setAll('outOfBoundsKill', true);
 
+    // add it to enemy bullet list for bullet-player collision handling
     enemyBulletList.push(enemyBullets);
 
     return enemyBullets;
 }
 
+/**
+ * enemy constructor
+ */
 function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense) {
     Phaser.Sprite.call(this, game, x, y, sprite);
 
+    // set general variables
     this.maxHealth = maxHealth;
     this.health = maxHealth;
     this.movementType = movementType;
@@ -33,7 +42,7 @@ function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bul
     this.movementDelay = 0;
     this.nextMove = 0;
 
-    game.physics.arcade.enable(this);
+    game.physics.enable(this, Phaser.Physics.ARCADE);
 
     this.body.collideWorldBounds = true;
 }
@@ -41,6 +50,9 @@ function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bul
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
 
+/**
+ * enemy update
+ */
 Enemy.prototype.update = function () {
     // fire bullets
     if (game.time.now > this.nextFire && this.bullets.countDead() > 0 && this.alive && player.alive) {
@@ -76,11 +88,16 @@ Enemy.prototype.update = function () {
     }
 };
 
+/**
+ * damages an enemy
+ */
 function damageEnemy (enemy, damage) {
     var defense = enemy.defense;
     // similar to player, damage dealt has to be at least 10% of original damage
     var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
+    // decrement health by finalDamage
     enemy.health -= finalDamage;
+    // check if enemy is dead
     if (enemy.health <= 0) {
         enemy.kill();
     }
@@ -88,6 +105,9 @@ function damageEnemy (enemy, damage) {
     createDamageText(enemy.x, enemy.y - 5, finalDamage);
 }
 
+/**
+ * called when a player bullet hits an enemy
+ */
 function enemyDamageHandler(enemy, playerBullet) {
     playerBullet.kill();
     damageEnemy(enemy, getStat('attack'));

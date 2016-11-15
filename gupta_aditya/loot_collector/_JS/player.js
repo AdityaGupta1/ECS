@@ -1,5 +1,5 @@
-/*
- Player bullet creation
+/**
+ * player bullet creation
  */
 function playerShoot() {
     if (game.input.activePointer.isDown) {
@@ -22,8 +22,8 @@ function playerShoot() {
     }
 }
 
-/*
- Eight-way movement with normalized diagonal speed
+/**
+ * eight-way movement with normalized diagonal speed
  */
 function eightWayMovement() {
     var movement = 0;
@@ -113,7 +113,9 @@ function eightWayMovement() {
     }
 }
 
-// regenerate health
+/**
+ * regenerate health
+ */
 function regenLife() {
     if (!player.alive) {
         return;
