@@ -21,10 +21,10 @@ var dKey;
 var playerStats = {
     'maxLife': 500,
     'life': 500,
-    'attack': 50,
-    'defense': 10,
     'speed': 40,
-    'dexterity': 50
+    'defense': 10,
+    'dexterity': 50,
+    'attack': 50
 };
 
 // player firing
@@ -35,6 +35,7 @@ var nextFire = 0;
 var nextRegen = 0;
 var regenRate = 100;
 var playerHealthBar;
+var damageTextStyle = {font: "16px Verdana", fill: "#FF0000"};
 
 // enemy bullets
 var enemyBulletList = [];
@@ -44,7 +45,7 @@ const pi = Math.PI;
 const sqrt2 = Math.sqrt(2);
 
 function getStat(stat) {
-    return playerStats[stat];
+    return parseInt(playerStats[stat]);
 }
 
 function setStat(stat, value) {
@@ -84,7 +85,7 @@ function create() {
 
     playerBullets = game.add.group();
     playerBullets.enableBody = true;
-    playerBullets.physicsBodyType = Phaser.Physics.ARCADE;
+    game.physics.enable(playerBullets, Phaser.Physics.ARCADE);
 
     // 100 bullet pool
     playerBullets.createMultiple(100, 't1_bullet');
@@ -99,8 +100,8 @@ function create() {
 
     fireRate = getStat('dexterity') * 10;
 
-    for (var i = 0; i < 1; i++) {
-        var enemy = new Enemy(100, 100, 'small_demon', 500, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 2, 1500, 25, 1000, 10);
+    for (var i = 0; i < 10; i++) {
+        var enemy = new Enemy(100, 100, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 1500, 25, 1000, 10);
         enemies.add(enemy);
     }
 
@@ -124,6 +125,15 @@ function create() {
     playerHealthBar = new HealthBar(game, playerHealthBarConfig)
 }
 
+function createDamageText(x, y, damage) {
+    var damageText = game.add.text(x, y - 5, '-' + damage, damageTextStyle);
+    game.physics.enable(damageText, Phaser.Physics.ARCADE);
+    damageText.body.velocity.y = -50;
+    setTimeout(function (){
+        damageText.kill();
+    }, 500);
+}
+
 // called when an enemy bullet hits the player
 function playerDamageHandler(player, enemyBullet) {
     enemyBullet.kill();
@@ -138,8 +148,7 @@ function playerDamageHandler(player, enemyBullet) {
         player.kill();
     }
 
-    var damageTextStyle = {font: "16px Verdana", fill: "#FF0000"};
-    var damageText = game.add.text(player.x, player.y + 5, '-' + finalDamage, damageTextStyle);
+    createDamageText(player.x, player.y - 5, finalDamage);
 }
 
 function update() {

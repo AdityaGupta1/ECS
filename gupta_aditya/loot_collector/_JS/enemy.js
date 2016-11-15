@@ -51,7 +51,7 @@ Enemy.prototype.update = function () {
         bullet.anchor.set(0.5);
         bullet.damage = this.bulletDamage;
         // radians, not degrees
-        bullet.rotation = game.physics.arcade.moveToXY(bullet, player.x + (player.width / 2), player.y + (player.height / 2), this.bulletSpeed * 100) + (pi / 4);
+        bullet.rotation = game.physics.arcade.moveToXY(bullet, player.x + (player.width / 2), player.y + (player.height / 2), this.bulletSpeed) + (pi / 4);
         game.world.sendToBack(bullet);
         // kill bullet after a certain amount of time
         setTimeout(function () {
@@ -77,12 +77,15 @@ Enemy.prototype.update = function () {
 };
 
 function damageEnemy (enemy, damage) {
-    var defense = this.defense;
+    var defense = enemy.defense;
     // similar to player, damage dealt has to be at least 10% of original damage
-    enemy.health -= (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
+    var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
+    enemy.health -= finalDamage;
     if (enemy.health <= 0) {
         enemy.kill();
     }
+
+    createDamageText(enemy.x, enemy.y - 5, finalDamage);
 }
 
 function enemyDamageHandler(enemy, playerBullet) {
