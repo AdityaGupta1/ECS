@@ -12,7 +12,7 @@ function createEnemyBulletGroup(sprite) {
     return enemyBullets;
 }
 
-function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense) {
+function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense) {
     Phaser.Sprite.call(this, game, x, y, sprite);
 
     this.maxHealth = maxHealth;
@@ -21,26 +21,30 @@ function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bul
     this.movementSpeed = movementSpeed;
     this.bullets = bullet;
     this.bulletSpeed = bulletSpeed;
+    this.bulletLifetime = bulletLifetime;
     this.bulletDamage = bulletDamage;
-    this.fireDelay = fireDelay;
-    this.nextFire = fireDelay;
     this.defense = defense;
+
+    // shooting variables
+    this.fireDelay = fireDelay;
+    this.nextFire = game.time.now + this.fireDelay + (game.rnd.integerInRange(0, this.fireDelay / 2.5) - (this.fireDelay / 5));
+
+    //movement variables
+    this.movementDelay = 0;
+    this.nextMove = 0;
 
     game.physics.arcade.enable(this);
 
     this.body.collideWorldBounds = true;
-};
+}
 
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
 
-var nextMove = 0;
-var movementDelay = 0;
-
 Enemy.prototype.update = function () {
     // fire bullets
-    if (game.time.now > this.nextFire && this.bullets.countDead() > 0 && this.alive) {
-        this.nextFire = game.time.now + this.fireDelay;
+    if (game.time.now > this.nextFire && this.bullets.countDead() > 0 && this.alive && player.alive) {
+        this.nextFire = game.time.now + this.fireDelay + (game.rnd.integerInRange(0, this.fireDelay / 2.5) - (this.fireDelay / 5));
         var bullet = this.bullets.getFirstDead();
         bullet.reset(this.x + (this.width / 2), this.y + (this.height / 2));
         // fixes rotation
@@ -52,14 +56,14 @@ Enemy.prototype.update = function () {
         // kill bullet after a certain amount of time
         setTimeout(function () {
             bullet.kill();
-        }, 1500);
+        }, this.bulletLifetime);
     }
 
     switch (this.movementType) {
         case 'random':
-            if (game.time.now > nextMove) {
-                nextMove = game.time.now + movementDelay;
-                movementDelay = game.rnd.integerInRange(500, 1000);
+            if (game.time.now > this.nextMove) {
+                this.nextMove = game.time.now + this.movementDelay;
+                this.movementDelay = game.rnd.integerInRange(500, 1000);
 
                 var angle = game.rnd.integerInRange(1, 360);
                 this.body.velocity.x = Math.cos(angle) * this.movementSpeed;
@@ -73,7 +77,9 @@ Enemy.prototype.update = function () {
 };
 
 function damageEnemy (enemy, damage) {
-    enemy.health -= damage;
+    var defense = this.defense;
+    // similar to player, damage dealt has to be at least 10% of original damage
+    enemy.health -= (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
     if (enemy.health <= 0) {
         enemy.kill();
     }

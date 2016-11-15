@@ -115,10 +115,19 @@ function eightWayMovement() {
 
 // regenerate health
 function regenLife() {
+    if (!player.alive) {
+        return;
+    }
+
     if (game.time.now > nextRegen) {
         nextRegen = game.time.now + regenRate;
-        if (getStat("life") < getStat("maxLife")) {
-            changeStat("life", 1);
+        if (getStat('life') < getStat('maxLife')) {
+            changeStat('life', 1);
         }
+    }
+
+    // just in case someone tries to inspect element insane amounts of health
+    if (getStat('life') > getStat('maxLife')) {
+        setStat('life', getStat('maxLife'))
     }
 }

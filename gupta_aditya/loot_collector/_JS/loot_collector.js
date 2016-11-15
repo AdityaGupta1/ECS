@@ -99,8 +99,10 @@ function create() {
 
     fireRate = getStat('dexterity') * 10;
 
-    var smallDemonBullets = createEnemyBulletGroup('small_demon_bullet');
-    enemies.add(new Enemy(500, 300, 'small_demon', 500, 'random', 300, smallDemonBullets, 5, 50, 1000, 10));
+    for (var i = 0; i < 1; i++) {
+        var enemy = new Enemy(100, 100, 'small_demon', 500, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 2, 1500, 25, 1000, 10);
+        enemies.add(enemy);
+    }
 
     player.body.collideWorldBounds = true;
 
@@ -128,10 +130,16 @@ function playerDamageHandler(player, enemyBullet) {
     var damage = enemyBullet.damage;
     var defense = getStat('defense');
     // defense subtracts from damage, but the enemy bullet has to deal at least 10% of its original damage
-    changeStat('life', (damage - defense) < (damage * 0.1) ? ((-damage) * 0.1) : ((-damage) + defense));
+    var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
+
+    changeStat('life', -finalDamage);
+
     if (getStat('life') < 0) {
         player.kill();
     }
+
+    var damageTextStyle = {font: "16px Verdana", fill: "#FF0000"};
+    var damageText = game.add.text(player.x, player.y + 5, '-' + finalDamage, damageTextStyle);
 }
 
 function update() {
