@@ -83,18 +83,18 @@ function preload() {
  * create sprites, bind keys, general pre-game stuff
  */
 function create() {
-    // debug plugin (for development purposes)
-    game.add.plugin(Phaser.Plugin.Debug);
-
+    // background coor
     game.stage.backgroundColor = '#c6c6c6';
 
     // all enemies will be part of this group
     enemies = game.add.group();
 
+    // add player
     player = game.add.sprite(500, 300, 'wizard');
     player.bringToTop();
     game.physics.enable(player, Phaser.Physics.ARCADE);
 
+    // add player bullet group
     playerBullets = game.add.group();
     playerBullets.enableBody = true;
     game.physics.enable(playerBullets, Phaser.Physics.ARCADE);
@@ -110,11 +110,12 @@ function create() {
     aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
 
-    createEnemies(10, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 25, 1000, 10);
-    createEnemies(2, 'fire_skull', 500, 'random', 100, createEnemyBulletGroup('fire_skull_bullet'), 100, 20, 500, 5);
+    createEnemies(10, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 25, 1000, 10, 1, 0);
+    createEnemies(2, 'fire_skull', 500, 'random', 100, createEnemyBulletGroup('fire_skull_bullet'), 100, 20, 500, 5, 3, pi/6);
 
     player.body.collideWorldBounds = true;
 
+    // health bar config (color, position, etc.)
     var playerHealthBarConfig = {
         width: 200,
         height: 20,
@@ -130,6 +131,7 @@ function create() {
         flipped: false
     };
 
+    // create health bar
     playerHealthBar = new HealthBar(game, playerHealthBarConfig)
 }
 

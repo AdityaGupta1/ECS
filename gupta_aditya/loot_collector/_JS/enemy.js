@@ -20,7 +20,7 @@ function createEnemyBulletGroup(sprite) {
 /**
  * enemy constructor
  */
-function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense) {
+function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense, shots, arc) {
     Phaser.Sprite.call(this, game, x, y, sprite);
 
     // set general variables
@@ -32,6 +32,8 @@ function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bul
     this.bulletSpeed = bulletSpeed;
     this.bulletDamage = bulletDamage;
     this.defense = defense;
+    this.shots = shots;
+    this.arc = arc;
 
     // shooting variables
     this.fireDelay = fireDelay;
@@ -57,15 +59,29 @@ Enemy.prototype.update = function () {
     if (game.time.now > this.nextFire && this.bullets.countDead() > 0 && this.alive && player.alive) {
         this.nextFire = game.time.now + this.fireDelay + (game.rnd.integerInRange(0, this.fireDelay / 2.5) - (this.fireDelay / 5));
 
-        var bullet;
-        bullet = this.bullets.getFirstDead();
-        bullet.reset(this.x + (this.width / 2), this.y + (this.height / 2));
-        // fixes rotation
-        bullet.anchor.set(0.5);
-        bullet.damage = this.bulletDamage;
-        // radians, not degrees
-        bullet.rotation = game.physics.arcade.moveToXY(bullet, player.x + (player.width / 2), player.y + (player.height / 2), this.bulletSpeed) + (pi / 4);
-        game.world.sendToBack(bullet);
+        // create point to fire at
+        var point = new Phaser.Point(player.x + (player.width / 2), player.y + (player.height / 2));
+        // rotate it if enemy fires multiple shots
+        if (this.shots > 1) {
+            point.rotate(this.x, this.y, -(((this.shots - 1) * this.arc) / 2), false);
+        }
+
+        for (var i = 0; i < this.shots; i++) {
+            var bullet = this.bullets.getFirstDead();
+            bullet.reset(this.x + (this.width / 2), this.y + (this.height / 2));
+            // fixes rotation
+            bullet.anchor.set(0.5);
+            bullet.damage = this.bulletDamage;
+
+            // radians, not degrees
+            bullet.rotation = game.physics.arcade.moveToXY(bullet, point.x, point.y, this.bulletSpeed) + (pi / 4);
+            game.world.sendToBack(bullet);
+
+            // rotate to next shotgun point
+            if (this.shots > 1) {
+                point.rotate(this.x, this.y, this.arc, false);
+            }
+        }
     }
 
     switch (this.movementType) {
@@ -122,11 +138,12 @@ function enemyDamageHandler(enemy, playerBullet) {
 /**
  * creates multiple enemies
  */
-function createEnemies(number, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense) {
+function createEnemies(number, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense, shots, arc) {
     for (var i = 0; i < number; i++) {
+        // random x and y positions
         var randomX = game.rnd.integerInRange(100, canvasWidth - 100);
         var randomY = game.rnd.integerInRange(100, canvasHeight - 100);
-        var enemy = new Enemy(randomX, randomY, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense);
+        var enemy = new Enemy(randomX, randomY, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense, shots, arc);
         enemies.add(enemy);
     }
 }
