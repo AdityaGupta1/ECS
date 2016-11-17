@@ -32,12 +32,12 @@ function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bul
     this.bulletSpeed = bulletSpeed;
     this.bulletDamage = bulletDamage;
     this.defense = defense;
-    this.shots = shots;
-    this.arc = arc;
 
     // shooting variables
     this.fireDelay = fireDelay;
     this.nextFire = game.time.now + this.fireDelay + (game.rnd.integerInRange(0, this.fireDelay / 2.5) - (this.fireDelay / 5));
+    this.shots = shots;
+    this.arc = arc;
 
     //movement variables
     this.movementDelay = 0;
@@ -67,7 +67,9 @@ Enemy.prototype.update = function () {
         }
 
         for (var i = 0; i < this.shots; i++) {
+            // get first dead bullet from pool
             var bullet = this.bullets.getFirstDead();
+            // revive bullet
             bullet.reset(this.x + (this.width / 2), this.y + (this.height / 2));
             // fixes rotation
             bullet.anchor.set(0.5);
@@ -138,12 +140,16 @@ function enemyDamageHandler(enemy, playerBullet) {
 /**
  * creates multiple enemies
  */
-function createEnemies(number, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense, shots, arc) {
+function createEnemies(number, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense, shots, arc) {
     for (var i = 0; i < number; i++) {
         // random x and y positions
         var randomX = game.rnd.integerInRange(100, canvasWidth - 100);
         var randomY = game.rnd.integerInRange(100, canvasHeight - 100);
-        var enemy = new Enemy(randomX, randomY, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense, shots, arc);
+        var enemy = new Enemy(randomX, randomY, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense, shots, arc);
         enemies.add(enemy);
     }
+}
+
+function allEnemiesDead() {
+    return enemies.getFirstAlive() == null;
 }

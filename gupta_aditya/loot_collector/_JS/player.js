@@ -5,9 +5,12 @@ function playerShoot() {
     if (game.input.activePointer.isDown) {
         if (game.time.now > nextFire && playerBullets.countDead() > 0 && player.alive) {
             nextFire = game.time.now + fireRate;
+            // get first dead bullet from pool
             var bullet = playerBullets.getFirstDead();
+            // revive bullet
             bullet.reset(player.x + (player.width / 2), player.y + (player.height / 2
                 ));
+            // point towards mouse and start moving
             game.physics.arcade.moveToPointer(bullet, 300);
             // fixes rotation
             bullet.anchor.set(0.5);
@@ -118,6 +121,7 @@ function regenLife() {
     }
 
     if (game.time.now > nextRegen) {
+        var regenRate = (1/getStat('vitality')) * 2000;
         nextRegen = game.time.now + regenRate;
         if (getStat('life') < getStat('maxLife')) {
             changeStat('life', 1);
@@ -128,4 +132,67 @@ function regenLife() {
     if (getStat('life') > getStat('maxLife')) {
         setStat('life', getStat('maxLife'))
     }
+}
+
+var oldPlayerStats;
+var admin = false;
+
+/**
+ * admin mode (for debug purposes, should only be used from console); insane fire rate + damage, near-invulnerability
+ */
+function adminMode() {
+    // if the player is already an admin, this function doesn't need to do anything
+    if (admin) {
+        return;
+    }
+
+    // shallow copy (changing one does not affect the other)
+    oldPlayerStats = $.extend({}, playerStats);
+
+    setStat('dexterity', 10000);
+    setStat('attack', 100);
+    setStat('maxLife', 1000000);
+    setStat('life', 1000000);
+    setStat('defense', 0);
+    setStat('vitality', 1000);
+
+    // used in normalMode()
+    admin = true;
+}
+
+/**
+ * normal mode (reverts to stats before admin mode)
+ */
+function normalMode() {
+    // if the player isn't an admin, this function doesn't need to do anything
+    if (!admin) {
+        return;
+    }
+
+    // shallow copy (changing one does not affect the other)
+    playerStats = $.extend({}, oldPlayerStats);
+
+    admin = false;
+}
+
+/**
+ * called when an enemy bullet hits the player
+ */
+function playerDamageHandler(player, enemyBullet) {
+    enemyBullet.kill();
+    var damage = enemyBullet.damage;
+    var defense = getStat('defense');
+    // defense subtracts from damage, but the enemy bullet has to deal at least 10% of its original damage
+    var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
+
+    // decrement life by finalDamage
+    changeStat('life', -finalDamage);
+
+    // check if player is dead
+    if (getStat('life') <= 0) {
+        player.kill();
+    }
+
+    // create damage text
+    createDamageText(player.x, player.y - 5, finalDamage);
 }

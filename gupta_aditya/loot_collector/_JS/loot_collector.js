@@ -11,7 +11,6 @@ var game = new Phaser.Game(canvasWidth, canvasHeight, Phaser.AUTO, 'loot-collect
 
 // sprites
 var player;
-var t1_bullet;
 var playerBullets;
 var enemies;
 
@@ -28,7 +27,8 @@ var playerStats = {
     'speed': 40,
     'defense': 10,
     'dexterity': 50,
-    'attack': 50
+    'attack': 50,
+    'vitality': 50
 };
 
 // player firing
@@ -37,12 +37,15 @@ var nextFire = 0;
 
 // health
 var nextRegen = 0;
-var regenRate = 100;
 var playerHealthBar;
 var damageTextStyle = {font: "16px Verdana", fill: "#FF0000"};
 
 // enemy bullets
 var enemyBulletList = [];
+
+// rounds
+var round = 1;
+var betweenRounds = true;
 
 // math
 const pi = Math.PI;
@@ -68,22 +71,26 @@ function preload() {
     game.load.image('wizard', '_img/player/wizard.png');
 
     // player bullets
-    game.load.image('t1_bullet', '_img/player_bullet/t1_bullet.png');
+    game.load.image('player_bullet', '_img/player_bullet/player_bullet.png');
 
     // enemies
     game.load.image('small_demon', '_img/enemy/small_demon.png');
     game.load.image('fire_skull', '_img/enemy/fire_skull.png');
+    game.load.image('crystal_minion', '_img/enemy/crystal_minion.png');
+    game.load.image('crystal_golem', '_img/enemy/crystal_golem.png');
 
     // enemy bullets
     game.load.image('small_demon_bullet', '_img/enemy_bullet/small_demon_bullet.png');
     game.load.image('fire_skull_bullet', '_img/enemy_bullet/fire_skull_bullet.png');
+    game.load.image('crystal_minion_bullet', '_img/enemy_bullet/crystal_minion_bullet.png');
+    game.load.image('crystal_golem_bullet', '_img/enemy_bullet/crystal_golem_bullet.png');
 }
 
 /**
  * create sprites, bind keys, general pre-game stuff
  */
 function create() {
-    // background coor
+    // background color
     game.stage.backgroundColor = '#c6c6c6';
 
     // all enemies will be part of this group
@@ -100,7 +107,7 @@ function create() {
     game.physics.enable(playerBullets, Phaser.Physics.ARCADE);
 
     // 500 bullet pool
-    playerBullets.createMultiple(500, 't1_bullet');
+    playerBullets.createMultiple(500, 'player_bullet');
     playerBullets.setAll('checkWorldBounds', true);
     playerBullets.setAll('outOfBoundsKill', true);
 
@@ -109,9 +116,6 @@ function create() {
     sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
     aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
-
-    createEnemies(10, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 25, 1000, 10, 1, 0);
-    createEnemies(2, 'fire_skull', 500, 'random', 100, createEnemyBulletGroup('fire_skull_bullet'), 100, 20, 500, 5, 3, pi/6);
 
     player.body.collideWorldBounds = true;
 
@@ -133,6 +137,12 @@ function create() {
 
     // create health bar
     playerHealthBar = new HealthBar(game, playerHealthBarConfig)
+
+    // starts first round after five seconds
+    setTimeout(function () {
+        startRound();
+        betweenRounds = false;
+    }, 5000);
 }
 
 /**
@@ -145,31 +155,9 @@ function createDamageText(x, y, damage) {
     // moves upwards
     damageText.body.velocity.y = -50;
     // dies after 0.5 seconds
-    setTimeout(function (){
+    setTimeout(function () {
         damageText.kill();
     }, 500);
-}
-
-/**
- * called when an enemy bullet hits the player
- */
-function playerDamageHandler(player, enemyBullet) {
-    enemyBullet.kill();
-    var damage = enemyBullet.damage;
-    var defense = getStat('defense');
-    // defense subtracts from damage, but the enemy bullet has to deal at least 10% of its original damage
-    var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
-
-    // decrement life by finalDamage
-    changeStat('life', -finalDamage);
-
-    // check if player is dead
-    if (getStat('life') <= 0) {
-        player.kill();
-    }
-
-    // create damage text
-    createDamageText(player.x, player.y - 5, finalDamage);
 }
 
 /**
@@ -188,10 +176,40 @@ function update() {
     playerHealthBar.setPercent((getStat('life') / getStat('maxLife')) * 100);
 
     // update fire rate
-    fireRate = (1/getStat('dexterity')) * 20000;
+    fireRate = (1 / getStat('dexterity')) * 20000;
 
     // player movement, shooting, health regeneration
     eightWayMovement();
     playerShoot();
     regenLife();
+
+    // check if all enemies are dead; if so, advance to next round
+    if (allEnemiesDead() && !betweenRounds) {
+        round++;
+        // set to true so that it doesn't check for enemies being dead while waiting for next round to start
+        betweenRounds = true;
+        // starts round after 5 seconds
+        setTimeout(function () {
+            startRound();
+            betweenRounds = false;
+        }, 5000)
+    }
+}
+
+function startRound() {
+    // createEnemies(number, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense, shots, arc);
+    switch (round) {
+        case 1:
+            createEnemies(10, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 25, 1000, 10, 1, 0);
+            createEnemies(2, 'fire_skull', 500, 'random', 100, createEnemyBulletGroup('fire_skull_bullet'), 100, 20, 500, 5, 3, pi / 6);
+            break;
+        case 2:
+            createEnemies(7, 'crystal_minion', 400, 'random', 150, createEnemyBulletGroup('crystal_minion_bullet'), 200, 50, 2000, 10, 2, pi/4);
+            createEnemies(1, 'crystal_golem', 1000, 'random', 75, createEnemyBulletGroup('crystal_golem_bullet'), 100, 70, 1000, 5, 5, pi / 3);
+            break;
+        // just in case the round variable is incorrectly set
+        default:
+            console.log("game is on an invalid round (round " + round + ")");
+            break;
+    }
 }
