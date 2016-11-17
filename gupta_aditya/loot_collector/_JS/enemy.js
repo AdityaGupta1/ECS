@@ -6,8 +6,8 @@ function createEnemyBulletGroup(sprite) {
     enemyBullets.enableBody = true;
     enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
 
-    // 100 bullet pool
-    enemyBullets.createMultiple(100, sprite);
+    // 500 bullet pool
+    enemyBullets.createMultiple(500, sprite);
     enemyBullets.setAll('checkWorldBounds', true);
     enemyBullets.setAll('outOfBoundsKill', true);
 
@@ -20,7 +20,7 @@ function createEnemyBulletGroup(sprite) {
 /**
  * enemy constructor
  */
-function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense) {
+function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense) {
     Phaser.Sprite.call(this, game, x, y, sprite);
 
     // set general variables
@@ -30,7 +30,6 @@ function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bul
     this.movementSpeed = movementSpeed;
     this.bullets = bullet;
     this.bulletSpeed = bulletSpeed;
-    this.bulletLifetime = bulletLifetime;
     this.bulletDamage = bulletDamage;
     this.defense = defense;
 
@@ -57,7 +56,9 @@ Enemy.prototype.update = function () {
     // fire bullets
     if (game.time.now > this.nextFire && this.bullets.countDead() > 0 && this.alive && player.alive) {
         this.nextFire = game.time.now + this.fireDelay + (game.rnd.integerInRange(0, this.fireDelay / 2.5) - (this.fireDelay / 5));
-        var bullet = this.bullets.getFirstDead();
+
+        var bullet;
+        bullet = this.bullets.getFirstDead();
         bullet.reset(this.x + (this.width / 2), this.y + (this.height / 2));
         // fixes rotation
         bullet.anchor.set(0.5);
@@ -65,25 +66,30 @@ Enemy.prototype.update = function () {
         // radians, not degrees
         bullet.rotation = game.physics.arcade.moveToXY(bullet, player.x + (player.width / 2), player.y + (player.height / 2), this.bulletSpeed) + (pi / 4);
         game.world.sendToBack(bullet);
-        // kill bullet after a certain amount of time
-        setTimeout(function () {
-            bullet.kill();
-        }, this.bulletLifetime);
     }
 
     switch (this.movementType) {
+        // randomly change velocity
         case 'random':
             if (game.time.now > this.nextMove) {
                 this.nextMove = game.time.now + this.movementDelay;
+                // makes it more random
                 this.movementDelay = game.rnd.integerInRange(500, 1000);
 
+                // random angle - integerInRange() is inclusive of both parameters
                 var angle = game.rnd.integerInRange(1, 360);
+                // normalize movement speed
                 this.body.velocity.x = Math.cos(angle) * this.movementSpeed;
                 this.body.velocity.y = Math.sin(angle) * this.movementSpeed;
             }
             break;
+        // stay in place
+        case 'stationary':
+            // do nothing
+            break;
+        // just in case I put an invalid movement type
         default:
-            console.log(this.sprite + ' does not have a movement type set!');
+            console.log(this.sprite + ' has an invalid movement type!');
             break;
     }
 };
@@ -91,7 +97,7 @@ Enemy.prototype.update = function () {
 /**
  * damages an enemy
  */
-function damageEnemy (enemy, damage) {
+function damageEnemy(enemy, damage) {
     var defense = enemy.defense;
     // similar to player, damage dealt has to be at least 10% of original damage
     var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
@@ -111,4 +117,16 @@ function damageEnemy (enemy, damage) {
 function enemyDamageHandler(enemy, playerBullet) {
     playerBullet.kill();
     damageEnemy(enemy, getStat('attack'));
+}
+
+/**
+ * creates multiple enemies
+ */
+function createEnemies(number, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense) {
+    for (var i = 0; i < number; i++) {
+        var randomX = game.rnd.integerInRange(100, canvasWidth - 100);
+        var randomY = game.rnd.integerInRange(100, canvasHeight - 100);
+        var enemy = new Enemy(randomX, randomY, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletLifetime, bulletDamage, fireDelay, defense);
+        enemies.add(enemy);
+    }
 }

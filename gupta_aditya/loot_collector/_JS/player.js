@@ -14,10 +14,6 @@ function playerShoot() {
             // radians, not degrees
             bullet.rotation = game.physics.arcade.angleToPointer(bullet) + (pi / 4);
             game.world.sendToBack(bullet);
-            // kill bullet after a certain amount of time
-            setTimeout(function () {
-                bullet.kill();
-            }, 1500);
         }
     }
 }

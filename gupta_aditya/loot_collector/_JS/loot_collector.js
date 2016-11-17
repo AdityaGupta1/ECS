@@ -1,5 +1,9 @@
+// canvas dimensions
+var canvasWidth = 1000;
+var canvasHeight = 600;
+
 // initialize game
-var game = new Phaser.Game(1000, 600, Phaser.AUTO, 'loot-collector', {
+var game = new Phaser.Game(canvasWidth, canvasHeight, Phaser.AUTO, 'loot-collector', {
     preload: preload,
     create: create,
     update: update
@@ -19,8 +23,8 @@ var dKey;
 
 // player stats
 var playerStats = {
-    'maxLife': 500,
-    'life': 500,
+    'maxLife': 1000,
+    'life': 1000,
     'speed': 40,
     'defense': 10,
     'dexterity': 50,
@@ -68,9 +72,11 @@ function preload() {
 
     // enemies
     game.load.image('small_demon', '_img/enemy/small_demon.png');
+    game.load.image('fire_skull', '_img/enemy/fire_skull.png');
 
     // enemy bullets
     game.load.image('small_demon_bullet', '_img/enemy_bullet/small_demon_bullet.png');
+    game.load.image('fire_skull_bullet', '_img/enemy_bullet/fire_skull_bullet.png');
 }
 
 /**
@@ -93,8 +99,8 @@ function create() {
     playerBullets.enableBody = true;
     game.physics.enable(playerBullets, Phaser.Physics.ARCADE);
 
-    // 100 bullet pool
-    playerBullets.createMultiple(100, 't1_bullet');
+    // 500 bullet pool
+    playerBullets.createMultiple(500, 't1_bullet');
     playerBullets.setAll('checkWorldBounds', true);
     playerBullets.setAll('outOfBoundsKill', true);
 
@@ -104,11 +110,8 @@ function create() {
     aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
 
-    fireRate = getStat('dexterity') * 10;
-    for (var i = 0; i < 10; i++) {
-        var enemy = new Enemy(100, 100, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 1500, 25, 1000, 10);
-        enemies.add(enemy);
-    }
+    createEnemies(10, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 25, 1000, 10);
+    createEnemies(2, 'fire_skull', 500, 'random', 100, createEnemyBulletGroup('fire_skull_bullet'), 100, 20, 500, 5);
 
     player.body.collideWorldBounds = true;
 
@@ -155,7 +158,7 @@ function playerDamageHandler(player, enemyBullet) {
     // defense subtracts from damage, but the enemy bullet has to deal at least 10% of its original damage
     var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
 
-    // decrement life by finalDamagee
+    // decrement life by finalDamage
     changeStat('life', -finalDamage);
 
     // check if player is dead
@@ -181,6 +184,9 @@ function update() {
 
     // update health bar
     playerHealthBar.setPercent((getStat('life') / getStat('maxLife')) * 100);
+
+    // update fire rate
+    fireRate = (1/getStat('dexterity')) * 20000;
 
     // player movement, shooting, health regeneration
     eightWayMovement();
