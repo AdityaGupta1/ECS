@@ -51,6 +51,14 @@ var betweenRounds = true;
 const pi = Math.PI;
 const sqrt2 = Math.sqrt(2);
 
+// lessons (for between rounds)
+// [[Lesson, Question, [Correct Answer, Answer, Answer, Answer]]]
+var lessons = [['When creating variables or functions in JavaScript, you should always follow naming conventions. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Question A', ['Correct Answer A', 'Answer A2', 'Answer A3', 'Answer A4']],
+    ['Lesson B', 'Question B', ['Correct Answer B', 'Answer B2', 'Answer B3', 'Answer B4']],
+    ['Lesson C', 'Question C', ['Correct Answer C', 'Answer C2', 'Answer C3', 'Answer C4']]];
+var lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
+var answerTextStyle = {font: '18pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
+
 function getStat(stat) {
     return playerStats[stat];
 }
@@ -78,12 +86,16 @@ function preload() {
     game.load.image('fire_skull', '_img/enemy/fire_skull.png');
     game.load.image('crystal_minion', '_img/enemy/crystal_minion.png');
     game.load.image('crystal_golem', '_img/enemy/crystal_golem.png');
+    game.load.image('blue_skull', '_img/enemy/blue_skull.png');
+    game.load.image('reaper', '_img/enemy/reaper.png');
 
     // enemy bullets
     game.load.image('small_demon_bullet', '_img/enemy_bullet/small_demon_bullet.png');
     game.load.image('fire_skull_bullet', '_img/enemy_bullet/fire_skull_bullet.png');
     game.load.image('crystal_minion_bullet', '_img/enemy_bullet/crystal_minion_bullet.png');
     game.load.image('crystal_golem_bullet', '_img/enemy_bullet/crystal_golem_bullet.png');
+    game.load.image('blue_skull_bullet', '_img/enemy_bullet/blue_skull_bullet.png');
+    game.load.image('reaper_bullet', '_img/enemy_bullet/reaper_bullet.png');
 }
 
 /**
@@ -91,7 +103,7 @@ function preload() {
  */
 function create() {
     // background color
-    game.stage.backgroundColor = '#c6c6c6';
+    game.stage.backgroundColor = '#C6C6C6';
 
     // all enemies will be part of this group
     enemies = game.add.group();
@@ -138,11 +150,9 @@ function create() {
     // create health bar
     playerHealthBar = new HealthBar(game, playerHealthBarConfig)
 
-    // starts first round after five seconds
-    setTimeout(function () {
-        startRound();
-        betweenRounds = false;
-    }, 5000);
+    // first lesson
+    startLesson();
+
 }
 
 /**
@@ -186,13 +196,7 @@ function update() {
     // check if all enemies are dead; if so, advance to next round
     if (allEnemiesDead() && !betweenRounds) {
         round++;
-        // set to true so that it doesn't check for enemies being dead while waiting for next round to start
-        betweenRounds = true;
-        // starts round after 5 seconds
-        setTimeout(function () {
-            startRound();
-            betweenRounds = false;
-        }, 5000)
+        startLesson();
     }
 }
 
@@ -200,16 +204,30 @@ function startRound() {
     // createEnemies(number, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense, shots, arc);
     switch (round) {
         case 1:
-            createEnemies(10, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 25, 1000, 10, 1, 0);
-            createEnemies(2, 'fire_skull', 500, 'random', 100, createEnemyBulletGroup('fire_skull_bullet'), 100, 20, 500, 5, 3, pi / 6);
+            createEnemies(10, 'small_demon', 200, 'random', 300, createEnemyBulletGroup('small_demon_bullet'), 250, 25, 1000, 5, 1, 0);
+            createEnemies(2, 'fire_skull', 500, 'random', 100, createEnemyBulletGroup('fire_skull_bullet'), 100, 20, 500, 10, 3, pi / 6);
             break;
         case 2:
-            createEnemies(7, 'crystal_minion', 400, 'random', 150, createEnemyBulletGroup('crystal_minion_bullet'), 200, 50, 2000, 10, 2, pi/4);
-            createEnemies(1, 'crystal_golem', 1000, 'random', 75, createEnemyBulletGroup('crystal_golem_bullet'), 100, 70, 1000, 5, 5, pi / 3);
+            createEnemies(7, 'crystal_minion', 400, 'random', 150, createEnemyBulletGroup('crystal_minion_bullet'), 200, 50, 2000, 10, 2, pi / 4);
+            createEnemies(1, 'crystal_golem', 1000, 'random', 75, createEnemyBulletGroup('crystal_golem_bullet'), 100, 70, 1000, 20, 9, pi / 8);
+            break;
+        case 3:
+            createEnemies(7, 'blue_skull', 300, 'random', 400, createEnemyBulletGroup('blue_skull_bullet'), 400, 30, 500, 5, 1, 0);
+            createEnemies(1, 'reaper', 700, 'random', 200, createEnemyBulletGroup('reaper_bullet'), 200, 50, 1000, 10, 12, pi / 6);
             break;
         // just in case the round variable is incorrectly set
         default:
             console.log("game is on an invalid round (round " + round + ")");
             break;
     }
+}
+
+function startLesson() {
+    betweenRounds = true;
+    // get all text needed for lesson
+    var lessonTexts = lessons[round - 1];
+    var damageText = game.add.text(50, 50, lessonTexts[0], lessonTextStyle);
+    game.physics.enable(damageText, Phaser.Physics.ARCADE);
+    // betweenRounds = false;
+    // startRound();
 }

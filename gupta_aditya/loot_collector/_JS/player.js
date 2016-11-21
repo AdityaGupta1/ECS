@@ -121,7 +121,7 @@ function regenLife() {
     }
 
     if (game.time.now > nextRegen) {
-        var regenRate = (1/getStat('vitality')) * 2000;
+        var regenRate = (1 / getStat('vitality')) * 2000;
         nextRegen = game.time.now + regenRate;
         if (getStat('life') < getStat('maxLife')) {
             changeStat('life', 1);
@@ -183,7 +183,7 @@ function playerDamageHandler(player, enemyBullet) {
     var damage = enemyBullet.damage;
     var defense = getStat('defense');
     // defense subtracts from damage, but the enemy bullet has to deal at least 10% of its original damage
-    var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
+    var finalDamage = Math.round((damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense));
 
     // decrement life by finalDamage
     changeStat('life', -finalDamage);

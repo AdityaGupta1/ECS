@@ -118,7 +118,7 @@ Enemy.prototype.update = function () {
 function damageEnemy(enemy, damage) {
     var defense = enemy.defense;
     // similar to player, damage dealt has to be at least 10% of original damage
-    var finalDamage = (damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense);
+    var finalDamage = Math.round((damage - defense) < (damage * 0.1) ? ((damage) * 0.1) : ((damage) - defense));
     // decrement health by finalDamage
     enemy.health -= finalDamage;
     // check if enemy is dead
