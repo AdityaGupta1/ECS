@@ -61,7 +61,7 @@ var enemyBulletList = [];
 
 // rounds
 var round = 1;
-var maxRound = 3;
+var maxRound = 4;
 var roundState = 'lesson';
 
 // math
@@ -69,11 +69,12 @@ const pi = Math.PI;
 const sqrt2 = Math.sqrt(2);
 
 // lessons (for between rounds)
-// [[Lesson, Question, [Correct Answer, Answer, Answer, Answer]]]
+// [Lesson, Question, [Correct Answer, Answer, Answer, Answer]]
 const lessons =
     [['Game controls:\n\n- Use WASD to move\n- Click to shoot\n- Press space to go from a lesson to its question\n- Press 1, 2, 3, or 4 to answer questions\n- Press space to go from a question\'s answer to the next round\n- Rounds start five seconds after the question is finished', 'Which keys are used for movement?', ['WASD', 'arrow keys', 'WSQE', 'UHJK']],
         ['Always follow naming conventions when creating variables in JavaScript. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Which of the following is in camelcase?', ['camelCase', 'Camelcase', 'CaMeLcAsE', 'camelcase']],
-        ['To make a function run after a certain amount of time, use the function \'setTimeout(function, milliseconds, param1, param2,...)\'. This runs \'function\' after \'milliseconds\' milliseconds. \'param1\', \'param2\', etc. are parameters to pass to the function.\n\nWhen using \'setTimeout()\', do NOT put parentheses after the function name - put any parameters after \'milliseconds\'.', 'Which of the following will run the function \'delayedFunction(\'parameter\')\' after 5 seconds?', ['setTimeout(delayedFunction, 5000, \'parameter\');', 'setTimeout(delayedFunction(), 5000);', 'setTimeout(delayedFunction(\'parameter\'), 5000);', 'setTimeout(delayedFunction, 5, \'parameter\');']]];
+        ['To make a function run after a certain amount of time, use the function \'setTimeout(function, milliseconds, param1, param2,...)\'. This runs \'function\' after \'milliseconds\' milliseconds. \'param1\', \'param2\', etc. are parameters to pass to the function.\n\nWhen using \'setTimeout()\', do NOT put parentheses after the function name - put any parameters after \'milliseconds\'.', 'Which of the following will run the function \'delayedFunction(\'parameter\')\' after 5 seconds?', ['setTimeout(delayedFunction, 5000, \'parameter\');', 'setTimeout(delayedFunction(), 5000);', 'setTimeout(delayedFunction(\'parameter\'), 5000);', 'setTimeout(delayedFunction, 5, \'parameter\');']],
+        ['If you want to get the value of a text box in JavaScript, you need to add an ID to your input tag (for example: \'<' + 'input type="text" id="text-input"/>\'). You can then access its value by using \'document.getElementById(\'text-input\').value\'.\n\nNote that the \'id\' and \'name\' attributes are not the same. For getting text input values, use \'id\', not \'name\'.', 'Which of the following gets the value of a text input with id \'input\'?', ['document.getElementById(\'input\').value', 'document.getElementsByName(\'input\').value', 'input.value', 'document.getValue(\'input\')']]];
 const lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
 var lessonText;
 var lessonTexts;
@@ -111,6 +112,9 @@ function preload() {
     game.load.image('crystal_golem', '_img/enemy/crystal_golem.png');
     game.load.image('blue_skull', '_img/enemy/blue_skull.png');
     game.load.image('reaper', '_img/enemy/reaper.png');
+    game.load.image('stone_mage', '_img/enemy/stone_mage.png');
+    game.load.image('sentinel', '_img/enemy/sentinel.png');
+    game.load.image('haunted_wisp', '_img/enemy/haunted_wisp.png');
 
     // enemy bullets
     game.load.image('small_demon_bullet', '_img/enemy_bullet/small_demon_bullet.png');
@@ -119,6 +123,10 @@ function preload() {
     game.load.image('crystal_golem_bullet', '_img/enemy_bullet/crystal_golem_bullet.png');
     game.load.image('blue_skull_bullet', '_img/enemy_bullet/blue_skull_bullet.png');
     game.load.image('reaper_bullet', '_img/enemy_bullet/reaper_bullet.png');
+    game.load.image('stone_mage_bullet', '_img/enemy_bullet/stone_mage_bullet.png');
+    game.load.image('sentinel_bullet', '_img/enemy_bullet/sentinel_bullet.png');
+    game.load.image('haunted_wisp_red_bullet', '_img/enemy_bullet/haunted_wisp_red_bullet.png');
+    game.load.image('haunted_wisp_purple_bullet', '_img/enemy_bullet/haunted_wisp_purple_bullet.png');
 }
 
 /**
@@ -227,16 +235,16 @@ function update() {
 
     // check if all enemies are dead; if so, advance to next round
     advanceRound:
-    if (allEnemiesDead() && roundState === 'enemies') {
-        round++;
-        // win game if round is greater than max round
-        if (round > maxRound) {
-            createFinishGameText(true);
-            roundState = 'win';
-            break advanceRound;
+        if (allEnemiesDead() && roundState === 'enemies') {
+            round++;
+            // win game if round is greater than max round
+            if (round > maxRound) {
+                createFinishGameText(true);
+                roundState = 'win';
+                break advanceRound;
+            }
+            startLesson();
         }
-        startLesson();
-    }
 
     // pressing space goes from lesson to question
     if (spaceKey.isDown && roundState === 'lesson') {
@@ -299,6 +307,12 @@ function startRound() {
             createEnemies(7, 'blue_skull', 300, 'random', 400, createEnemyBulletGroup('blue_skull_bullet'), 400, 30, 500, 5, 1, 0);
             createEnemies(1, 'reaper', 700, 'random', 200, createEnemyBulletGroup('reaper_bullet'), 200, 50, 1000, 10, 12, pi / 6);
             break;
+        case 4:
+            createEnemies(5, 'stone_mage', 500, 'random', 100, createEnemyBulletGroup('stone_mage_bullet'), 100, 40, 1250, 10, 3, pi / 12);
+            createEnemies(1, 'sentinel', 1500, 'stationary', 0, createEnemyBulletGroup('sentinel_bullet'), 50, 100, 1750, 25, 8, pi / 4);
+            break;
+        case 5:
+            createEnemies(1, 'haunted_wisp', 2500, 'random', 250, [createEnemyBulletGroup('haunted_wisp_red_bullet'), createEnemyBulletGroup('haunted_wisp_purple_bullet')], [200, 100], [50, 100], 1000, 20, 12, pi / 6);
     }
 }
 
@@ -355,6 +369,7 @@ function startQuestion() {
         }
     }
 
+    // add text
     lessonText = game.add.text(50, 50, message, lessonTextStyle);
 }
 
@@ -389,7 +404,7 @@ function buffStats(buff) {
     }
 
     // add text (changes 'maxLife' to 'max life' for readability)
-    var buffText = game.add.text(0, 0, (buff ? '+' : '-') + statChange.toString() + ' ' + (stat === 'maxLife' ? 'max life' : stat), (buff ? buffTextStyle : debuffTextStyle));
+    var buffText = game.add.text(0, 0, (buff ? '+' : '') + statChange.toString() + ' ' + (stat === 'maxLife' ? 'max life' : stat), (buff ? buffTextStyle : debuffTextStyle));
     // text starts at the top of player's sprite
     buffText.y = player.y - buffText.height;
     // center horizontally (on the player)
@@ -422,6 +437,7 @@ function checkAnswer(chosenNumber) {
         buffStats(false);
     }
 
+    // add text
     lessonText = game.add.text(50, 50, message, lessonTextStyle);
 }
 

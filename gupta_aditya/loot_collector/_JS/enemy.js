@@ -24,6 +24,7 @@ function Enemy(x, y, sprite, maxHealth, movementType, movementSpeed, bullet, bul
     Phaser.Sprite.call(this, game, x, y, sprite);
 
     // set general variables
+    this.name = sprite;
     this.maxHealth = maxHealth;
     this.health = maxHealth;
     this.movementType = movementType;
@@ -52,37 +53,66 @@ Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
 
 /**
+ * reset next fire time
+ */
+Enemy.prototype.resetNextFire = function () {
+    this.nextFire = game.time.now + this.fireDelay + (game.rnd.integerInRange(0, this.fireDelay / 2.5) - (this.fireDelay / 5));
+};
+
+/**
+ * normal firing (non-boss enemies)
+ */
+Enemy.prototype.normalFire = function () {
+    this.resetNextFire();
+
+    // create point to fire at
+    var point = new Phaser.Point(player.x + (player.width / 2), player.y + (player.height / 2));
+    // rotate it if enemy fires multiple shots
+    if (this.shots > 1) {
+        point.rotate(this.x, this.y, -(((this.shots - 1) * this.arc) / 2), false);
+    }
+
+    for (var i = 0; i < this.shots; i++) {
+        // get first dead bullet from pool
+        var bullet = this.bullets.getFirstDead();
+        // revive bullet
+        bullet.reset(this.x + (this.width / 2), this.y + (this.height / 2));
+        // fixes rotation
+        bullet.anchor.set(0.5);
+        bullet.damage = this.bulletDamage;
+
+        // radians, not degrees
+        bullet.rotation = game.physics.arcade.moveToXY(bullet, point.x, point.y, this.bulletSpeed) + (pi / 4);
+        game.world.sendToBack(bullet);
+
+        // rotate to next shotgun point
+        if (this.shots > 1) {
+            point.rotate(this.x, this.y, this.arc, false);
+        }
+    }
+};
+
+/**
+ * haunted wisp firing
+ */
+Enemy.prototype.wispFire = function () {
+    this.normalFire();
+};
+
+/**
  * enemy update
  */
 Enemy.prototype.update = function () {
     // fire bullets
     if (game.time.now > this.nextFire && this.bullets.countDead() > 0 && this.alive && player.alive) {
-        this.nextFire = game.time.now + this.fireDelay + (game.rnd.integerInRange(0, this.fireDelay / 2.5) - (this.fireDelay / 5));
-
-        // create point to fire at
-        var point = new Phaser.Point(player.x + (player.width / 2), player.y + (player.height / 2));
-        // rotate it if enemy fires multiple shots
-        if (this.shots > 1) {
-            point.rotate(this.x, this.y, -(((this.shots - 1) * this.arc) / 2), false);
-        }
-
-        for (var i = 0; i < this.shots; i++) {
-            // get first dead bullet from pool
-            var bullet = this.bullets.getFirstDead();
-            // revive bullet
-            bullet.reset(this.x + (this.width / 2), this.y + (this.height / 2));
-            // fixes rotation
-            bullet.anchor.set(0.5);
-            bullet.damage = this.bulletDamage;
-
-            // radians, not degrees
-            bullet.rotation = game.physics.arcade.moveToXY(bullet, point.x, point.y, this.bulletSpeed) + (pi / 4);
-            game.world.sendToBack(bullet);
-
-            // rotate to next shotgun point
-            if (this.shots > 1) {
-                point.rotate(this.x, this.y, this.arc, false);
-            }
+        switch (this.name) {
+            case 'haunted_wisp':
+                this.wispFire();
+                break;
+            // anything without a special firing type
+            default:
+                this.normalFire();
+                break;
         }
     }
 
