@@ -42,6 +42,10 @@ const possibleBuffs = ['maxLife', 'vitality', 'speed', 'defense', 'dexterity', '
 var buffTextStyle = {font: '16px Verdana', fill: '#00FF00'};
 var debuffTextStyle = {font: '16px Verdana', fill: '#FF0000'};
 
+// game over/you win text
+var winTextStyle = {font: '72px Verdana', fill: '#00FF00'};
+var loseTextStyle = {font: '72px Verdana', fill: '#FF0000'};
+
 // player firing
 var fireRate = 0;
 var nextFire = 0;
@@ -57,6 +61,7 @@ var enemyBulletList = [];
 
 // rounds
 var round = 1;
+var maxRound = 3;
 var roundState = 'lesson';
 
 // math
@@ -68,8 +73,7 @@ const sqrt2 = Math.sqrt(2);
 const lessons =
     [['Game controls:\n\n- Use WASD to move\n- Click to shoot\n- Press space to go from a lesson to its question\n- Press 1, 2, 3, or 4 to answer questions\n- Press space to go from a question\'s answer to the next round\n- Rounds start five seconds after the question is finished', 'Which keys are used for movement?', ['WASD', 'arrow keys', 'WSQE', 'UHJK']],
         ['Always follow naming conventions when creating variables in JavaScript. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Which of the following is in camelcase?', ['camelCase', 'Camelcase', 'CaMeLcAsE', 'camelcase']],
-        ['Lesson B', 'Question B', ['Correct Answer B', 'Answer B2', 'Answer B3', 'Answer B4']],
-        ['Lesson C', 'Question C', ['Correct Answer C', 'Answer C2', 'Answer C3', 'Answer C4']]];
+        ['To make a function run after a certain amount of time, use the function \'setTimeout(function, milliseconds, param1, param2,...)\'. This runs \'function\' after \'milliseconds\' milliseconds. \'param1\', \'param2\', etc. are parameters to pass to the function.\n\nWhen using \'setTimeout()\', do NOT put parentheses after the function name - put any parameters after \'milliseconds\'.', 'Which of the following will run the function \'delayedFunction(\'parameter\')\' after 5 seconds?', ['setTimeout(delayedFunction, 5000, \'parameter\');', 'setTimeout(delayedFunction(), 5000);', 'setTimeout(delayedFunction(\'parameter\'), 5000);', 'setTimeout(delayedFunction, 5, \'parameter\');']]];
 const lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
 var lessonText;
 var lessonTexts;
@@ -185,10 +189,10 @@ function create() {
 function createDamageText(x, y, width, damage) {
     // add text
     var damageText = game.add.text(0, 0, '-' + damage, damageTextStyle);
-    // text starts at the top of player/damaged enemy's sprite
-    damageText.y = y - damageText.height;
     // center horizontally (on the player/damaged enemy)
     damageText.x = x - ((damageText.width - width) / 2);
+    // text starts at the top of player/damaged enemy's sprite
+    damageText.y = y - damageText.height;
     game.physics.enable(damageText, Phaser.Physics.ARCADE);
     // moves upwards
     damageText.body.velocity.y = -50;
@@ -224,6 +228,11 @@ function update() {
     // check if all enemies are dead; if so, advance to next round
     if (allEnemiesDead() && roundState === 'enemies') {
         round++;
+        // win game if round is greater than max round
+        if (round > maxRound) {
+            createFinishGameText(true);
+            roundState = 'win';
+        }
         startLesson();
     }
 
@@ -235,30 +244,30 @@ function update() {
 
     // pressing 1, 2, 3, or 4 chooses an answer to a question
     chooseAnswer:
-    if (roundState === 'question') {
-        var chosenNumber;
+        if (roundState === 'question') {
+            var chosenNumber;
 
-        // converts key presses into index numbers
-        if (oneKey.isDown) {
-            chosenNumber = 0;
-        } else if (twoKey.isDown) {
-            chosenNumber = 1;
-        } else if (threeKey.isDown) {
-            chosenNumber = 2;
-        } else if (fourKey.isDown) {
-            chosenNumber = 3;
-        } else {
-            chosenNumber = -1;
+            // converts key presses into index numbers
+            if (oneKey.isDown) {
+                chosenNumber = 0;
+            } else if (twoKey.isDown) {
+                chosenNumber = 1;
+            } else if (threeKey.isDown) {
+                chosenNumber = 2;
+            } else if (fourKey.isDown) {
+                chosenNumber = 3;
+            } else {
+                chosenNumber = -1;
+            }
+
+            // if none of the answer keys are being pressed, there is no reason to continue
+            if (chosenNumber === -1) {
+                break chooseAnswer;
+            }
+
+            lessonText.kill();
+            checkAnswer(chosenNumber);
         }
-
-        // if none of the answer keys are being pressed, there is no reason to continue
-        if (chosenNumber === -1) {
-            break chooseAnswer;
-        }
-
-        lessonText.kill();
-        checkAnswer(chosenNumber);
-    }
 
     // pressing space while viewing correct answer starts the round (after a five-second delay)
     if (spaceKey.isDown && roundState === 'answer') {
@@ -288,17 +297,13 @@ function startRound() {
             createEnemies(7, 'blue_skull', 300, 'random', 400, createEnemyBulletGroup('blue_skull_bullet'), 400, 30, 500, 5, 1, 0);
             createEnemies(1, 'reaper', 700, 'random', 200, createEnemyBulletGroup('reaper_bullet'), 200, 50, 1000, 10, 12, pi / 6);
             break;
-        // just in case the round variable is incorrectly set
-        default:
-            console.log('game is on an invalid round (round ' + round + ')');
-            break;
     }
 }
 
 /**
  * randomizes order of array elements
  */
-Array.prototype.shuffle = function() {
+Array.prototype.shuffle = function () {
     for (var index = this.length - 1; index > 0; index--) {
         var randomIndex = Math.floor(Math.random() * (index + 1));
         var temp = this[index];
@@ -322,7 +327,7 @@ function startLesson() {
  * turns a number into answer text
  * if newline is true, it will add a new line after the text
  */
-function numberToAnswer(number, newline){
+function numberToAnswer(number, newline) {
     return ((number + 1).toString() + ') ' + answers[randomNumbers[number]]).concat(newline ? '\n' : '');
 }
 
@@ -354,19 +359,27 @@ function startQuestion() {
 /**
  * buffs or debuffs the player's stats after a question
  */
-function buffStats(debuff) {
+function buffStats(buff) {
     // get a random buffable stat
     var stat = possibleBuffs[game.rnd.integerInRange(0, possibleBuffs.length - 1)];
     // amount by which stat changes
-    var statChange = basePlayerStats[stat] / 10;
+    var statChange = (buff ? 1 : -1) * basePlayerStats[stat] / 10;
 
-    changeStat(stat, (debuff ? -1 : 1) * statChange);
+    if (!admin) {
+        changeStat(stat, statChange);
+    } else {
+        oldPlayerStats[stat] = oldPlayerStats[stat] + statChange;
+    }
     if (stat === 'maxLife') {
-        changeStat('life', (debuff ? -1 : 1) * statChange);
+        if (!admin) {
+            changeStat('life', statChange);
+        } else {
+            oldPlayerStats['life'] = oldPlayerStats['life'] + statChange;
+        }
     }
 
     // add text (changes 'maxLife' to 'max life' for readability)
-    var buffText = game.add.text(0, 0, (!debuff ? '+' : '-') + statChange.toString() + ' ' + (stat === 'maxLife' ? 'max life' : stat), (debuff ? debuffTextStyle : buffTextStyle));
+    var buffText = game.add.text(0, 0, (buff ? '+' : '-') + statChange.toString() + ' ' + (stat === 'maxLife' ? 'max life' : stat), (buff ? buffTextStyle : debuffTextStyle));
     // text starts at the top of player's sprite
     buffText.y = player.y - buffText.height;
     // center horizontally (on the player)
@@ -391,13 +404,25 @@ function checkAnswer(chosenNumber) {
     if (chosenNumber === correctAnswerNumber) {
         message = message.concat('Correct!\n');
         message = message.concat('Answer: ' + numberToAnswer(correctAnswerNumber, false));
-        buffStats(false);
+        buffStats(true);
     } else {
         message = message.concat('Incorrect!\n');
         message = message.concat('Your answer: ' + numberToAnswer(chosenNumber, true));
         message = message.concat('Correct answer: ' + numberToAnswer(correctAnswerNumber, false));
-        buffStats(true);
+        buffStats(false);
     }
 
     lessonText = game.add.text(50, 50, message, lessonTextStyle);
+}
+
+/**
+ * creates text when game is finished (whether player wins or loses)
+ */
+function createFinishGameText(win) {
+    // add text
+    var finishGameText = game.add.text(0, 0, (win ? 'You win!' : 'Game over!'), (win ? winTextStyle : loseTextStyle));
+    // center text horizontally
+    finishGameText.x = (canvasWidth - finishGameText.width) / 2;
+    // center text vertically
+    finishGameText.y = (canvasHeight - finishGameText.height) / 2;
 }

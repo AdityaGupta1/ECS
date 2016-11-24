@@ -190,6 +190,8 @@ function playerDamageHandler(player, enemyBullet) {
     // check if player is dead
     if (getStat('life') <= 0) {
         player.kill();
+        createFinishGameText(false);
+        roundState = 'lose';
     }
 
     // create damage text
