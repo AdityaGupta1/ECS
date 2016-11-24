@@ -60,8 +60,8 @@ var damageTextStyle = {font: '16px Verdana', fill: '#FF0000'};
 var enemyBulletList = [];
 
 // rounds
-var round = 1;
-var maxRound = 4;
+var round = 5;
+var maxRound = 5;
 var roundState = 'lesson';
 
 // math
@@ -74,7 +74,8 @@ const lessons =
     [['Game controls:\n\n- Use WASD to move\n- Click to shoot\n- Press space to go from a lesson to its question\n- Press 1, 2, 3, or 4 to answer questions\n- Press space to go from a question\'s answer to the next round\n- Rounds start five seconds after the question is finished', 'Which keys are used for movement?', ['WASD', 'arrow keys', 'WSQE', 'UHJK']],
         ['Always follow naming conventions when creating variables in JavaScript. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Which of the following is in camelcase?', ['camelCase', 'Camelcase', 'CaMeLcAsE', 'camelcase']],
         ['To make a function run after a certain amount of time, use the function \'setTimeout(function, milliseconds, param1, param2,...)\'. This runs \'function\' after \'milliseconds\' milliseconds. \'param1\', \'param2\', etc. are parameters to pass to the function.\n\nWhen using \'setTimeout()\', do NOT put parentheses after the function name - put any parameters after \'milliseconds\'.', 'Which of the following will run the function \'delayedFunction(\'parameter\')\' after 5 seconds?', ['setTimeout(delayedFunction, 5000, \'parameter\');', 'setTimeout(delayedFunction(), 5000);', 'setTimeout(delayedFunction(\'parameter\'), 5000);', 'setTimeout(delayedFunction, 5, \'parameter\');']],
-        ['If you want to get the value of a text box in JavaScript, you need to add an ID to your input tag (for example: \'<' + 'input type="text" id="text-input"/>\'). You can then access its value by using \'document.getElementById(\'text-input\').value\'.\n\nNote that the \'id\' and \'name\' attributes are not the same. For getting text input values, use \'id\', not \'name\'.', 'Which of the following gets the value of a text input with id \'input\'?', ['document.getElementById(\'input\').value', 'document.getElementsByName(\'input\').value', 'input.value', 'document.getValue(\'input\')']]];
+        ['If you want to get the value of a text box in JavaScript, you need to add an ID to your input tag (for example: \'<' + 'input type="text" id="text-input"/>\'). You can then access its value by using \'document.getElementById(\'text-input\').value\'.\n\nNote that the \'id\' and \'name\' attributes are not the same. For getting text input values, use \'id\', not \'name\'.', 'Which of the following gets the value of a text input with id \'input\'?', ['document.getElementById(\'input\').value', 'document.getElementsByName(\'input\').value', 'input.value', 'document.getValue(\'input\')']],
+        ['To make a constant (unchangeable value) in JavaScript, use the keyword \'const\' instead of \'var\'. For example, writing \'const degreesInACircle = 360\' makes a value \'degreesInACircle\' which is always 360 no matter what.', 'Which of the following defines a constant value \'sqrt2\' with a value of \'Math.sqrt(2)\'?', ['const sqrt2 = Math.sqrt(2)', 'constant sqrt2 = Math.sqrt(2)', 'const var sqrt2 = Math.sqrt(2)', 'var sqrt2 = Math.sqrt(2)']]];
 const lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
 var lessonText;
 var lessonTexts;
@@ -312,7 +313,7 @@ function startRound() {
             createEnemies(1, 'sentinel', 1500, 'stationary', 0, createEnemyBulletGroup('sentinel_bullet'), 50, 100, 1750, 25, 8, pi / 4);
             break;
         case 5:
-            createEnemies(1, 'haunted_wisp', 2500, 'random', 250, [createEnemyBulletGroup('haunted_wisp_red_bullet'), createEnemyBulletGroup('haunted_wisp_purple_bullet')], [200, 100], [50, 100], 1000, 20, 12, pi / 6);
+            createEnemies(1, 'haunted_wisp', 2500, 'random', 250, [createEnemyBulletGroup('haunted_wisp_red_bullet'), createEnemyBulletGroup('haunted_wisp_purple_bullet')], [400, 200], [50, 100], 250, 20, [1, 24], pi / 12);
     }
 }
 

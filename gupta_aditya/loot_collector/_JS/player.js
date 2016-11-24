@@ -12,7 +12,7 @@ function playerShoot() {
                 ));
             // point towards mouse and start moving
             game.physics.arcade.moveToPointer(bullet, 300);
-            // fixes rotation
+            // fix rotation
             bullet.anchor.set(0.5);
             // radians, not degrees
             bullet.rotation = game.physics.arcade.angleToPointer(bullet) + (pi / 4);
