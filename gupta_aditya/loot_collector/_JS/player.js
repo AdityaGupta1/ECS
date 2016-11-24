@@ -121,8 +121,7 @@ function regenLife() {
     }
 
     if (game.time.now > nextRegen) {
-        var regenRate = (1 / getStat('vitality')) * 2000;
-        nextRegen = game.time.now + regenRate;
+        nextRegen = game.time.now + (1 / getStat('vitality')) * 2000;
         if (getStat('life') < getStat('maxLife')) {
             changeStat('life', 1);
         }
@@ -194,5 +193,5 @@ function playerDamageHandler(player, enemyBullet) {
     }
 
     // create damage text
-    createDamageText(player.x, player.y - 5, finalDamage);
+    createDamageText(player.x, player.y, player.width, finalDamage);
 }

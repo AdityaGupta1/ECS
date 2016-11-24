@@ -1,6 +1,6 @@
 // canvas dimensions
-var canvasWidth = 1000;
-var canvasHeight = 600;
+const canvasWidth = 1000;
+const canvasHeight = 600;
 
 // initialize game
 var game = new Phaser.Game(canvasWidth, canvasHeight, Phaser.AUTO, 'loot-collector', {
@@ -29,12 +29,18 @@ var fourKey;
 var playerStats = {
     'maxLife': 1000,
     'life': 1000,
+    'vitality': 40,
     'speed': 40,
     'defense': 10,
     'dexterity': 50,
-    'attack': 50,
-    'vitality': 40
+    'attack': 50
 };
+
+// buffs/debuffs
+const basePlayerStats = $.extend({}, playerStats);
+const possibleBuffs = ['maxLife', 'vitality', 'speed', 'defense', 'dexterity', 'attack'];
+var buffTextStyle = {font: '16px Verdana', fill: '#00FF00'};
+var debuffTextStyle = {font: '16px Verdana', fill: '#FF0000'};
 
 // player firing
 var fireRate = 0;
@@ -44,6 +50,7 @@ var nextFire = 0;
 var nextRegen = 0;
 var playerHealthBar;
 var damageTextStyle = {font: '16px Verdana', fill: '#FF0000'};
+
 
 // enemy bullets
 var enemyBulletList = [];
@@ -58,12 +65,12 @@ const sqrt2 = Math.sqrt(2);
 
 // lessons (for between rounds)
 // [[Lesson, Question, [Correct Answer, Answer, Answer, Answer]]]
-var lessons =
+const lessons =
     [['Game controls:\n\n- Use WASD to move\n- Click to shoot\n- Press space to go from a lesson to its question\n- Press 1, 2, 3, or 4 to answer questions\n- Press space to go from a question\'s answer to the next round\n- Rounds start five seconds after the question is finished', 'Which keys are used for movement?', ['WASD', 'arrow keys', 'WSQE', 'UHJK']],
         ['Always follow naming conventions when creating variables in JavaScript. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Which of the following is in camelcase?', ['camelCase', 'Camelcase', 'CaMeLcAsE', 'camelcase']],
         ['Lesson B', 'Question B', ['Correct Answer B', 'Answer B2', 'Answer B3', 'Answer B4']],
         ['Lesson C', 'Question C', ['Correct Answer C', 'Answer C2', 'Answer C3', 'Answer C4']]];
-var lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
+const lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
 var lessonText;
 var lessonTexts;
 var question;
@@ -175,9 +182,13 @@ function create() {
 /**
  * creates a damage text which moves upwards then disappears
  */
-function createDamageText(x, y, damage) {
+function createDamageText(x, y, width, damage) {
     // add text
-    var damageText = game.add.text(x, y - 5, '-' + damage, damageTextStyle);
+    var damageText = game.add.text(0, 0, '-' + damage, damageTextStyle);
+    // text starts at the top of player/damaged enemy's sprite
+    damageText.y = y - damageText.height;
+    // center horizontally (on the player/damaged enemy)
+    damageText.x = x - ((damageText.width - width) / 2);
     game.physics.enable(damageText, Phaser.Physics.ARCADE);
     // moves upwards
     damageText.body.velocity.y = -50;
@@ -341,6 +352,35 @@ function startQuestion() {
 }
 
 /**
+ * buffs or debuffs the player's stats after a question
+ */
+function buffStats(debuff) {
+    // get a random buffable stat
+    var stat = possibleBuffs[game.rnd.integerInRange(0, possibleBuffs.length - 1)];
+    // amount by which stat changes
+    var statChange = basePlayerStats[stat] / 10;
+
+    changeStat(stat, (debuff ? -1 : 1) * statChange);
+    if (stat === 'maxLife') {
+        changeStat('life', (debuff ? -1 : 1) * statChange);
+    }
+
+    // add text (changes 'maxLife' to 'max life' for readability)
+    var buffText = game.add.text(0, 0, (!debuff ? '+' : '-') + statChange.toString() + ' ' + (stat === 'maxLife' ? 'max life' : stat), (debuff ? debuffTextStyle : buffTextStyle));
+    // text starts at the top of player's sprite
+    buffText.y = player.y - buffText.height;
+    // center horizontally (on the player)
+    buffText.x = player.x - ((buffText.width - player.width) / 2);
+    game.physics.enable(buffText, Phaser.Physics.ARCADE);
+    // moves upwards
+    buffText.body.velocity.y = -50;
+    // dies after 0.5 seconds
+    setTimeout(function () {
+        buffText.kill();
+    }, 500);
+}
+
+/**
  * checks answer chosen by player
  */
 function checkAnswer(chosenNumber) {
@@ -351,10 +391,12 @@ function checkAnswer(chosenNumber) {
     if (chosenNumber === correctAnswerNumber) {
         message = message.concat('Correct!\n');
         message = message.concat('Answer: ' + numberToAnswer(correctAnswerNumber, false));
+        buffStats(false);
     } else {
         message = message.concat('Incorrect!\n');
         message = message.concat('Your answer: ' + numberToAnswer(chosenNumber, true));
         message = message.concat('Correct answer: ' + numberToAnswer(correctAnswerNumber, false));
+        buffStats(true);
     }
 
     lessonText = game.add.text(50, 50, message, lessonTextStyle);

@@ -126,7 +126,7 @@ function damageEnemy(enemy, damage) {
         enemy.kill();
     }
 
-    createDamageText(enemy.x, enemy.y - 5, finalDamage);
+    createDamageText(enemy.x, enemy.y, enemy.width, finalDamage);
 }
 
 /**
