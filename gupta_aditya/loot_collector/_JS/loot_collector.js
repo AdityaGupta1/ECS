@@ -60,7 +60,7 @@ var damageTextStyle = {font: '16px Verdana', fill: '#FF0000'};
 var enemyBulletList = [];
 
 // rounds
-var round = 5;
+var round = 1;
 var maxRound = 5;
 var roundState = 'lesson';
 
