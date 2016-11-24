@@ -226,12 +226,14 @@ function update() {
     regenLife();
 
     // check if all enemies are dead; if so, advance to next round
+    advanceRound:
     if (allEnemiesDead() && roundState === 'enemies') {
         round++;
         // win game if round is greater than max round
         if (round > maxRound) {
             createFinishGameText(true);
             roundState = 'win';
+            break advanceRound;
         }
         startLesson();
     }
