@@ -14,11 +14,16 @@ var player;
 var playerBullets;
 var enemies;
 
-// wasd keys
+// keys
 var wKey;
-var sKey;
 var aKey;
+var sKey;
 var dKey;
+var spaceKey;
+var oneKey;
+var twoKey;
+var threeKey;
+var fourKey;
 
 // player stats
 var playerStats = {
@@ -28,7 +33,7 @@ var playerStats = {
     'defense': 10,
     'dexterity': 50,
     'attack': 50,
-    'vitality': 50
+    'vitality': 40
 };
 
 // player firing
@@ -38,14 +43,14 @@ var nextFire = 0;
 // health
 var nextRegen = 0;
 var playerHealthBar;
-var damageTextStyle = {font: "16px Verdana", fill: "#FF0000"};
+var damageTextStyle = {font: '16px Verdana', fill: '#FF0000'};
 
 // enemy bullets
 var enemyBulletList = [];
 
 // rounds
 var round = 1;
-var betweenRounds = true;
+var roundState = 'lesson';
 
 // math
 const pi = Math.PI;
@@ -53,11 +58,18 @@ const sqrt2 = Math.sqrt(2);
 
 // lessons (for between rounds)
 // [[Lesson, Question, [Correct Answer, Answer, Answer, Answer]]]
-var lessons = [['When creating variables or functions in JavaScript, you should always follow naming conventions. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Question A', ['Correct Answer A', 'Answer A2', 'Answer A3', 'Answer A4']],
-    ['Lesson B', 'Question B', ['Correct Answer B', 'Answer B2', 'Answer B3', 'Answer B4']],
-    ['Lesson C', 'Question C', ['Correct Answer C', 'Answer C2', 'Answer C3', 'Answer C4']]];
+var lessons =
+    [['Game controls:\n\n- Use WASD to move\n- Click to shoot\n- Press space to go from a lesson to its question\n- Press 1, 2, 3, or 4 to answer questions\n- Press space to go from a question\'s answer to the next round\n- Rounds start five seconds after the question is finished', 'Which keys are used for movement?', ['WASD', 'arrow keys', 'WSQE', 'UHJK']],
+        ['Always follow naming conventions when creating variables in JavaScript. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Which of the following is in camelcase?', ['camelCase', 'Camelcase', 'CaMeLcAsE', 'camelcase']],
+        ['Lesson B', 'Question B', ['Correct Answer B', 'Answer B2', 'Answer B3', 'Answer B4']],
+        ['Lesson C', 'Question C', ['Correct Answer C', 'Answer C2', 'Answer C3', 'Answer C4']]];
 var lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
-var answerTextStyle = {font: '18pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
+var lessonText;
+var lessonTexts;
+var question;
+var answers;
+var randomNumbers;
+var correctAnswerNumber;
 
 function getStat(stat) {
     return playerStats[stat];
@@ -125,9 +137,14 @@ function create() {
 
     // bind keys
     wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
-    sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
     aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
     dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
+    spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    oneKey = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
+    twoKey = game.input.keyboard.addKey(Phaser.Keyboard.TWO);
+    threeKey = game.input.keyboard.addKey(Phaser.Keyboard.THREE);
+    fourKey = game.input.keyboard.addKey(Phaser.Keyboard.FOUR);
 
     player.body.collideWorldBounds = true;
 
@@ -148,7 +165,7 @@ function create() {
     };
 
     // create health bar
-    playerHealthBar = new HealthBar(game, playerHealthBarConfig)
+    playerHealthBar = new HealthBar(game, playerHealthBarConfig);
 
     // first lesson
     startLesson();
@@ -194,13 +211,58 @@ function update() {
     regenLife();
 
     // check if all enemies are dead; if so, advance to next round
-    if (allEnemiesDead() && !betweenRounds) {
+    if (allEnemiesDead() && roundState === 'enemies') {
         round++;
         startLesson();
     }
+
+    // pressing space goes from lesson to question
+    if (spaceKey.isDown && roundState === 'lesson') {
+        lessonText.kill();
+        startQuestion();
+    }
+
+    // pressing 1, 2, 3, or 4 chooses an answer to a question
+    chooseAnswer:
+    if (roundState === 'question') {
+        var chosenNumber;
+
+        // converts key presses into index numbers
+        if (oneKey.isDown) {
+            chosenNumber = 0;
+        } else if (twoKey.isDown) {
+            chosenNumber = 1;
+        } else if (threeKey.isDown) {
+            chosenNumber = 2;
+        } else if (fourKey.isDown) {
+            chosenNumber = 3;
+        } else {
+            chosenNumber = -1;
+        }
+
+        // if none of the answer keys are being pressed, there is no reason to continue
+        if (chosenNumber === -1) {
+            break chooseAnswer;
+        }
+
+        lessonText.kill();
+        checkAnswer(chosenNumber);
+    }
+
+    // pressing space while viewing correct answer starts the round (after a five-second delay)
+    if (spaceKey.isDown && roundState === 'answer') {
+        roundState = 'between';
+        lessonText.kill();
+        setTimeout(startRound, 5000);
+    }
 }
 
+/**
+ * spawns enemies for the round
+ */
 function startRound() {
+    roundState = 'enemies';
+
     // createEnemies(number, sprite, maxHealth, movementType, movementSpeed, bullet, bulletSpeed, bulletDamage, fireDelay, defense, shots, arc);
     switch (round) {
         case 1:
@@ -217,17 +279,83 @@ function startRound() {
             break;
         // just in case the round variable is incorrectly set
         default:
-            console.log("game is on an invalid round (round " + round + ")");
+            console.log('game is on an invalid round (round ' + round + ')');
             break;
     }
 }
 
+/**
+ * randomizes order of array elements
+ */
+Array.prototype.shuffle = function() {
+    for (var index = this.length - 1; index > 0; index--) {
+        var randomIndex = Math.floor(Math.random() * (index + 1));
+        var temp = this[index];
+        this[index] = this[randomIndex];
+        this[randomIndex] = temp;
+    }
+    return this;
+};
+
+/**
+ * creates lesson text
+ */
 function startLesson() {
-    betweenRounds = true;
+    roundState = 'lesson';
     // get all text needed for lesson
-    var lessonTexts = lessons[round - 1];
-    var damageText = game.add.text(50, 50, lessonTexts[0], lessonTextStyle);
-    game.physics.enable(damageText, Phaser.Physics.ARCADE);
-    // betweenRounds = false;
-    // startRound();
+    lessonTexts = lessons[round - 1];
+    lessonText = game.add.text(50, 50, lessonTexts[0], lessonTextStyle);
+}
+
+/**
+ * turns a number into answer text
+ * if newline is true, it will add a new line after the text
+ */
+function numberToAnswer(number, newline){
+    return ((number + 1).toString() + ') ' + answers[randomNumbers[number]]).concat(newline ? '\n' : '');
+}
+
+/**
+ * creates question text and answer choices
+ */
+function startQuestion() {
+    roundState = 'question';
+    question = lessonTexts[1];
+    answers = lessonTexts[2];
+    // list of numbers 0 to 3 in random order
+    randomNumbers = [0, 1, 2, 3].shuffle();
+
+    var message = question + '\n\n';
+
+    // find the index where the correct answer will be
+    // also, add answers to text that will be displayed
+    for (var index = 0; index < randomNumbers.length; index++) {
+        // add an answer on a new line
+        message = message.concat(numberToAnswer(index, true));
+        if (randomNumbers[index] === 0) {
+            correctAnswerNumber = index;
+        }
+    }
+
+    lessonText = game.add.text(50, 50, message, lessonTextStyle);
+}
+
+/**
+ * checks answer chosen by player
+ */
+function checkAnswer(chosenNumber) {
+    roundState = 'answer';
+
+    var message = question + '\n\n';
+
+    if (chosenNumber === correctAnswerNumber) {
+        message = message.concat('Correct!\n');
+        message = message.concat('Answer: ' + numberToAnswer(correctAnswerNumber, false));
+    } else {
+        message = message.concat('Incorrect!\n');
+        message = message.concat('Your answer: ' + numberToAnswer(chosenNumber, true));
+        message = message.concat('Correct answer: ' + numberToAnswer(correctAnswerNumber, false));
+    }
+
+    lessonText = game.add.text(50, 50, message, lessonTextStyle);
 }

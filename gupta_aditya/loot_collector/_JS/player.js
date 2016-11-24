@@ -26,7 +26,7 @@ function playerShoot() {
  */
 function eightWayMovement() {
     var movement = 0;
-    var speed = getStat("speed") * 10;
+    var speed = getStat('speed') * 10;
     var diagonalSpeed = speed / sqrt2;
 
     // create a unique movement number for each key combination
