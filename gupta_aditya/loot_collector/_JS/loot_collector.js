@@ -366,13 +366,21 @@ function buffStats(buff) {
     var stat = possibleBuffs[game.rnd.integerInRange(0, possibleBuffs.length - 1)];
     // amount by which stat changes
     var statChange = (buff ? 1 : -1) * basePlayerStats[stat] / 10;
+    // make sure the stat doesn't go negative
+    if (!buff && Math.abs(statChange) > getStat('stat')) {
+        statChange = getStat('stat');
+    }
 
+    // stat change affects actual player stats, not admin player stats
     if (!admin) {
         changeStat(stat, statChange);
     } else {
         oldPlayerStats[stat] = oldPlayerStats[stat] + statChange;
     }
+
+    // if the stat is max health, change actual health as well
     if (stat === 'maxLife') {
+        // stat change affects actual player stats, not admin player stats
         if (!admin) {
             changeStat('life', statChange);
         } else {
