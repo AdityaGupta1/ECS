@@ -216,6 +216,13 @@ function damageEnemy(enemy, damage) {
     // check if enemy is dead
     if (enemy.health <= 0) {
         enemy.kill();
+        // destroy enemy bullet group (to help with lag)
+        var clearEnemyBullets = setInterval(function () {
+            if (enemy.bullets.getFirstAlive() == null) {
+                enemy.bullets.destroy(true);
+                clearInterval(clearEnemyBullets);
+            }
+        }, 500);
     }
 
     createDamageText(enemy.x, enemy.y, enemy.width, finalDamage);
@@ -242,6 +249,9 @@ function createEnemies(number, sprite, maxHealth, movementType, movementSpeed, b
     }
 }
 
+/**
+ * check if all enemies are dead
+ */
 function allEnemiesDead() {
     return enemies.getFirstAlive() == null;
 }

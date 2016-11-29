@@ -2,22 +2,24 @@
  * player bullet creation
  */
 function playerShoot() {
-    if (game.input.activePointer.isDown) {
-        if (game.time.now > nextFire && playerBullets.countDead() > 0 && player.alive) {
-            nextFire = game.time.now + fireRate;
-            // get first dead bullet from pool
-            var bullet = playerBullets.getFirstDead();
-            // revive bullet
-            bullet.reset(player.x + (player.width / 2), player.y + (player.height / 2
-                ));
-            // point towards mouse and start moving
-            game.physics.arcade.moveToPointer(bullet, 300);
-            // fix rotation
-            bullet.anchor.set(0.5);
-            // radians, not degrees
-            bullet.rotation = game.physics.arcade.angleToPointer(bullet) + (pi / 4);
-            game.world.sendToBack(bullet);
-        }
+    if (!game.input.activePointer.isDown || roundState !== 'enemies') {
+        return;
+    }
+
+    if (game.time.now > nextFire && playerBullets.countDead() > 0 && player.alive) {
+        nextFire = game.time.now + fireRate;
+        // get first dead bullet from pool
+        var bullet = playerBullets.getFirstDead();
+        // revive bullet
+        bullet.reset(player.x + (player.width / 2), player.y + (player.height / 2
+            ));
+        // point towards mouse and start moving
+        game.physics.arcade.moveToPointer(bullet, 300);
+        // fix rotation
+        bullet.anchor.set(0.5);
+        // radians, not degrees
+        bullet.rotation = game.physics.arcade.angleToPointer(bullet) + (pi / 4);
+        game.world.sendToBack(bullet);
     }
 }
 
@@ -196,4 +198,19 @@ function playerDamageHandler(player, enemyBullet) {
 
     // create damage text
     createDamageText(player.x, player.y, player.width, finalDamage);
+}
+
+/**
+ * creates player bullet pool
+ */
+function createPlayerBullets() {
+    // add player bullet group
+    playerBullets = game.add.group();
+    playerBullets.enableBody = true;
+    game.physics.enable(playerBullets, Phaser.Physics.ARCADE);
+
+    // 500 bullet pool
+    playerBullets.createMultiple(500, 'player_bullet');
+    playerBullets.setAll('checkWorldBounds', true);
+    playerBullets.setAll('outOfBoundsKill', true);
 }

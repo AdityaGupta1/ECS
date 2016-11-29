@@ -66,7 +66,7 @@ var roundState = 'lesson';
 
 // math
 const pi = Math.PI;
-const sqrt2 = Math.sqrt(2);
+const sqrt2 = Math.round(Math.sqrt(2) * 100) / 100; // round to two decimal places
 
 // lessons (for between rounds)
 // [Lesson, Question, [Correct Answer, Answer, Answer, Answer]]
@@ -145,15 +145,7 @@ function create() {
     player.bringToTop();
     game.physics.enable(player, Phaser.Physics.ARCADE);
 
-    // add player bullet group
-    playerBullets = game.add.group();
-    playerBullets.enableBody = true;
-    game.physics.enable(playerBullets, Phaser.Physics.ARCADE);
-
-    // 500 bullet pool
-    playerBullets.createMultiple(500, 'player_bullet');
-    playerBullets.setAll('checkWorldBounds', true);
-    playerBullets.setAll('outOfBoundsKill', true);
+    createPlayerBullets();
 
     // bind keys
     wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
@@ -338,6 +330,10 @@ function startLesson() {
     // get all text needed for lesson
     lessonTexts = lessons[round - 1];
     lessonText = game.add.text(50, 50, lessonTexts[0], lessonTextStyle);
+
+    // refresh player bullet pool
+    playerBullets.destroy(true);
+    createPlayerBullets();
 }
 
 /**
