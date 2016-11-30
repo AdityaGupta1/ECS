@@ -75,7 +75,8 @@ const lessons =
         ['Always follow naming conventions when creating variables in JavaScript. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Which of the following is in camelcase?', ['camelCase', 'Camelcase', 'CaMeLcAsE', 'camelcase']],
         ['To make a function run after a certain amount of time, use the function \'setTimeout(function, milliseconds, param1, param2,...)\'. This runs \'function\' after \'milliseconds\' milliseconds. \'param1\', \'param2\', etc. are parameters to pass to the function.\n\nWhen using \'setTimeout()\', do NOT put parentheses after the function name - put any parameters after \'milliseconds\'.', 'Which of the following will run the function \'delayedFunction(\'parameter\')\' after 5 seconds?', ['setTimeout(delayedFunction, 5000, \'parameter\');', 'setTimeout(delayedFunction(), 5000);', 'setTimeout(delayedFunction(\'parameter\'), 5000);', 'setTimeout(delayedFunction, 5, \'parameter\');']],
         ['If you want to get the value of a text box in JavaScript, you need to add an ID to your input tag (for example: \'<' + 'input type="text" id="text-input"/>\'). You can then access its value by using \'document.getElementById(\'text-input\').value\'.\n\nNote that the \'id\' and \'name\' attributes are not the same. For getting text input values, use \'id\', not \'name\'.', 'Which of the following gets the value of a text input with id \'input\'?', ['document.getElementById(\'input\').value', 'document.getElementsByName(\'input\').value', 'input.value', 'document.getValue(\'input\')']],
-        ['To make a constant (unchangeable value) in JavaScript, use the keyword \'const\' instead of \'var\'. For example, writing \'const degreesInACircle = 360\' makes a value \'degreesInACircle\' which is always 360 no matter what.', 'Which of the following defines a constant value \'sqrt2\' with a value of \'Math.sqrt(2)\'?', ['const sqrt2 = Math.sqrt(2)', 'constant sqrt2 = Math.sqrt(2)', 'const var sqrt2 = Math.sqrt(2)', 'var sqrt2 = Math.sqrt(2)']]];
+        ['To make a constant (unchangeable value) in JavaScript, use the keyword \'const\' instead of \'var\'. For example, writing \'const degreesInACircle = 360\' makes a value \'degreesInACircle\' which is always 360 no matter what.', 'Which of the following defines a constant value \'sqrt2\' with a value of \'Math.sqrt(2)\'?', ['const sqrt2 = Math.sqrt(2)', 'constant sqrt2 = Math.sqrt(2)', 'const var sqrt2 = Math.sqrt(2)', 'var sqrt2 = Math.sqrt(2)']],
+        ['Lesson 6', 'Question 6', ['Correct Answer 6', 'Answer 6', 'Answer 6', 'Answer 6']]];
 const lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
 var lessonText;
 var lessonTexts;
@@ -116,6 +117,9 @@ function preload() {
     game.load.image('stone_mage', '_img/enemy/stone_mage.png');
     game.load.image('sentinel', '_img/enemy/sentinel.png');
     game.load.image('haunted_wisp', '_img/enemy/haunted_wisp.png');
+    game.load.image('alien', '_img/enemy/alien.png');
+    game.load.image('small_alien', '_img/enemy/small_alien.png');
+
 
     // enemy bullets
     game.load.image('small_demon_bullet', '_img/enemy_bullet/small_demon_bullet.png');
@@ -128,6 +132,8 @@ function preload() {
     game.load.image('sentinel_bullet', '_img/enemy_bullet/sentinel_bullet.png');
     game.load.image('haunted_wisp_red_bullet', '_img/enemy_bullet/haunted_wisp_red_bullet.png');
     game.load.image('haunted_wisp_purple_bullet', '_img/enemy_bullet/haunted_wisp_purple_bullet.png');
+    game.load.image('alien_bullet', '_img/enemy_bullet/alien_bullet.png');
+    game.load.image('small_alien_bullet', '_img/enemy_bullet/small_alien_bullet.png');
 }
 
 /**
@@ -306,6 +312,11 @@ function startRound() {
             break;
         case 5:
             createEnemies(1, 'haunted_wisp', 2500, 'random', 250, [createEnemyBulletGroup('haunted_wisp_red_bullet'), createEnemyBulletGroup('haunted_wisp_purple_bullet')], [400, 200], [50, 100], 250, 20, [1, 24], pi / 12);
+            break;
+        case 6:
+            createEnemies(12, 'small_alien', 200, 'random', 75, createEnemyBulletGroup('small_alien_bullet'), 200, 30, 750, 10, 2, pi/12);
+            createEnemies(1, 'alien', 1000, 'random', 200, createEnemyBulletGroup('alien_bullet'), 200, 75, 1250, 25, 4, pi / 8);
+            break;
     }
 }
 
