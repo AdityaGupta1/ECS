@@ -66,7 +66,7 @@ var roundState = 'lesson';
 
 // math
 const pi = Math.PI;
-const sqrt2 = Math.round(Math.sqrt(2) * 100) / 100; // round to two decimal places
+const sqrt2 = Math.round(Math.sqrt(2) * 1000) / 1000; // round to two decimal places
 
 // lessons (for between rounds)
 // [Lesson, Question, [Correct Answer, Answer, Answer, Answer]]
