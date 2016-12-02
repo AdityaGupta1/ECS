@@ -61,7 +61,7 @@ var enemyBulletList = [];
 
 // rounds
 var round = 1;
-var maxRound = 5;
+var maxRound = 6;
 var roundState = 'lesson';
 
 // math
@@ -71,12 +71,12 @@ const sqrt2 = Math.round(Math.sqrt(2) * 1000) / 1000; // round to two decimal pl
 // lessons (for between rounds)
 // [Lesson, Question, [Correct Answer, Answer, Answer, Answer]]
 const lessons =
-    [['Game controls:\n\n- Use WASD to move\n- Click to shoot\n- Press space to go from a lesson to its question\n- Press 1, 2, 3, or 4 to answer questions\n- Press space to go from a question\'s answer to the next round\n- Rounds start five seconds after the question is finished', 'Which keys are used for movement?', ['WASD', 'arrow keys', 'WSQE', 'UHJK']],
+    [['Game controls:\n\n- Use WASD to move; click to shoot\n- Press space to go from a lesson to its question or a question\'s answer to the next round\n- Press 1, 2, 3, or 4 to answer questions\n- Rounds start five seconds after the question is finished\n- Lessons start five seconds after the round is finished\n- Correct answers give one random stuff buff\n- Boss kills give three random stat buffs', 'Which keys are used for movement?', ['WASD', 'arrow keys', 'WSQE', 'UHJK']],
         ['Always follow naming conventions when creating variables in JavaScript. Names should be in camelcase, meaning that the first word should be lowercase and the first letters of the following words should be uppercase.\n\nFor example: thisIsAVariable, thisIsAnotherVariable, thisIsAFunction(), etc.', 'Which of the following is in camelcase?', ['camelCase', 'Camelcase', 'CaMeLcAsE', 'camelcase']],
         ['To make a function run after a certain amount of time, use the function \'setTimeout(function, milliseconds, param1, param2,...)\'. This runs \'function\' after \'milliseconds\' milliseconds. \'param1\', \'param2\', etc. are parameters to pass to the function.\n\nWhen using \'setTimeout()\', do NOT put parentheses after the function name - put any parameters after \'milliseconds\'.', 'Which of the following will run the function \'delayedFunction(\'parameter\')\' after 5 seconds?', ['setTimeout(delayedFunction, 5000, \'parameter\');', 'setTimeout(delayedFunction(), 5000);', 'setTimeout(delayedFunction(\'parameter\'), 5000);', 'setTimeout(delayedFunction, 5, \'parameter\');']],
         ['If you want to get the value of a text box in JavaScript, you need to add an ID to your input tag (for example: \'<' + 'input type="text" id="text-input"/>\'). You can then access its value by using \'document.getElementById(\'text-input\').value\'.\n\nNote that the \'id\' and \'name\' attributes are not the same. For getting text input values, use \'id\', not \'name\'.', 'Which of the following gets the value of a text input with id \'input\'?', ['document.getElementById(\'input\').value', 'document.getElementsByName(\'input\').value', 'input.value', 'document.getValue(\'input\')']],
         ['To make a constant (unchangeable value) in JavaScript, use the keyword \'const\' instead of \'var\'. For example, writing \'const degreesInACircle = 360\' makes a value \'degreesInACircle\' which is always 360 no matter what.', 'Which of the following defines a constant value \'sqrt2\' with a value of \'Math.sqrt(2)\'?', ['const sqrt2 = Math.sqrt(2)', 'constant sqrt2 = Math.sqrt(2)', 'const var sqrt2 = Math.sqrt(2)', 'var sqrt2 = Math.sqrt(2)']],
-        ['Lesson 6', 'Question 6', ['Correct Answer 6', 'Answer 6', 'Answer 6', 'Answer 6']]];
+        ['If a JavaScript file ends in \'.min.js\', it is \'minified\'. This means that any unnecessary characters (spaces, line breaks, etc.) have been removed to make the file smaller and easier to download. Never modify these files, because they are usually libraries that should\'nt be changed. Minified files can be linked to HTML files in the same way as normal JavaScript files.', 'What is the file extension for minified JavaScript files?', ['.min.js', '.min', '.minified.js', '.minified']]];
 const lessonTextStyle = {font: '24pt Verdana', fill: 'white', wordWrap: true, wordWrapWidth: 800};
 var lessonText;
 var lessonTexts;
@@ -118,7 +118,6 @@ function preload() {
     game.load.image('sentinel', '_img/enemy/sentinel.png');
     game.load.image('haunted_wisp', '_img/enemy/haunted_wisp.png');
     game.load.image('alien', '_img/enemy/alien.png');
-    game.load.image('small_alien', '_img/enemy/small_alien.png');
 
 
     // enemy bullets
@@ -133,7 +132,6 @@ function preload() {
     game.load.image('haunted_wisp_red_bullet', '_img/enemy_bullet/haunted_wisp_red_bullet.png');
     game.load.image('haunted_wisp_purple_bullet', '_img/enemy_bullet/haunted_wisp_purple_bullet.png');
     game.load.image('alien_bullet', '_img/enemy_bullet/alien_bullet.png');
-    game.load.image('small_alien_bullet', '_img/enemy_bullet/small_alien_bullet.png');
 }
 
 /**
@@ -232,7 +230,7 @@ function update() {
     playerShoot();
     regenLife();
 
-    // check if all enemies are dead; if so, advance to next round
+    // check if all enemies are dead; if so, advance to lesson
     advanceRound:
         if (allEnemiesDead() && roundState === 'enemies') {
             round++;
@@ -242,7 +240,21 @@ function update() {
                 roundState = 'win';
                 break advanceRound;
             }
-            startLesson();
+
+            // time (in milliseconds) to wait before starting lesson
+            var lessonWait = 5000;
+
+            // waits 6.2 seconds instead of 5 if the round is a boss round (for triple buff)
+            if ((round - 1) % 5 === 0) {
+                tripleBuff();
+                lessonWait = 6200;
+            }
+
+            // set round state to lesson to prevent checking for round end
+            roundState = 'lesson';
+            setTimeout(function() {
+                startLesson();
+            }, lessonWait);
         }
 
     // pressing space goes from lesson to question
@@ -314,8 +326,7 @@ function startRound() {
             createEnemies(1, 'haunted_wisp', 2500, 'random', 250, [createEnemyBulletGroup('haunted_wisp_red_bullet'), createEnemyBulletGroup('haunted_wisp_purple_bullet')], [400, 200], [50, 100], 250, 20, [1, 24], pi / 12);
             break;
         case 6:
-            createEnemies(12, 'small_alien', 200, 'random', 75, createEnemyBulletGroup('small_alien_bullet'), 200, 30, 750, 10, 2, pi/12);
-            createEnemies(1, 'alien', 1000, 'random', 200, createEnemyBulletGroup('alien_bullet'), 200, 75, 1250, 25, 4, pi / 8);
+            createEnemies(5, 'alien', 500, 'random', 200, createEnemyBulletGroup('alien_bullet'), 200, 75, 2000, 20, 5, pi / 6);
             break;
     }
 }
@@ -337,7 +348,6 @@ Array.prototype.shuffle = function () {
  * creates lesson text
  */
 function startLesson() {
-    roundState = 'lesson';
     // get all text needed for lesson
     lessonTexts = lessons[round - 1];
     lessonText = game.add.text(50, 50, lessonTexts[0], lessonTextStyle);
@@ -424,6 +434,24 @@ function buffStats(buff) {
     setTimeout(function () {
         buffText.kill();
     }, 500);
+}
+
+/**
+ * buffs player stats three times (only happens after a boss kill)
+ */
+function tripleBuff() {
+    var count = 0;
+
+    // 1.5 second delay between buffs so player can read buff text
+    var buffInterval = setInterval(function () {
+        buffStats(true);
+        count++;
+
+        // clear interval once player has been buffed three times
+        if (count === 3) {
+            clearInterval(buffInterval);
+        }
+    }, 400);
 }
 
 /**
