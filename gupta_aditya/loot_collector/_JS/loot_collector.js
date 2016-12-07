@@ -62,7 +62,6 @@ var nextRegen = 0;
 var playerHealthBar;
 var damageTextStyle = {font: '16px Verdana', fill: '#FF0000'};
 
-
 // enemy bullets
 var enemyBulletList = [];
 
@@ -125,7 +124,6 @@ function preload() {
     game.load.image('sentinel', '_img/enemy/sentinel.png');
     game.load.image('haunted_wisp', '_img/enemy/haunted_wisp.png');
     game.load.image('alien', '_img/enemy/alien.png');
-
 
     // enemy bullets
     game.load.image('small_demon_bullet', '_img/enemy_bullet/small_demon_bullet.png');
@@ -192,14 +190,13 @@ function create() {
 
     createTitleText();
 
-    setTimeout(function() {
+    setTimeout(function () {
         titleText.kill();
         nameText.kill();
         // first lesson
         roundState = 'lesson';
         startLesson();
     }, 5000);
-
 }
 
 /**
@@ -289,7 +286,7 @@ function update() {
 
             // set round state to lesson to prevent checking for round end
             roundState = 'lesson';
-            setTimeout(function() {
+            setTimeout(function () {
                 startLesson();
             }, lessonWait);
         }
