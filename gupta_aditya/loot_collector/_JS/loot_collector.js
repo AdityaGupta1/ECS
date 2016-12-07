@@ -14,6 +14,13 @@ var player;
 var playerBullets;
 var enemies;
 
+// title screen text
+var titleText;
+var titleTextStyle = {font: '64px Verdana', fill: '#FFFFFF'};
+var nameText;
+var nameTextHeight = 32;
+var nameTextStyle = {font: nameTextHeight.toString() + 'px Verdana', fill: '#FFFFFF'};
+
 // keys
 var wKey;
 var aKey;
@@ -62,7 +69,7 @@ var enemyBulletList = [];
 // rounds
 var round = 1;
 var maxRound = 6;
-var roundState = 'lesson';
+var roundState = 'title';
 
 // math
 const pi = Math.PI;
@@ -183,9 +190,39 @@ function create() {
     // create health bar
     playerHealthBar = new HealthBar(game, playerHealthBarConfig);
 
-    // first lesson
-    startLesson();
+    createTitleText();
 
+    setTimeout(function() {
+        titleText.kill();
+        nameText.kill();
+        // first lesson
+        roundState = 'lesson';
+        startLesson();
+    }, 5000);
+
+}
+
+/**
+ * creates title text
+ */
+function createTitleText() {
+    // add text
+    titleText = game.add.text(0, 0, 'Loot Collector', titleTextStyle);
+    // center text horizontally
+    titleText.x = (canvasWidth - titleText.width) / 2;
+    // center text vertically
+    titleText.y = (canvasHeight - (titleText.height + nameTextHeight + 8)) / 2;
+    setTimeout(createNameText, 2000);
+
+}
+
+function createNameText() {
+    // add text
+    nameText = game.add.text(0, 0, 'by Aditya Gupta', nameTextStyle);
+    // center text horizontally
+    nameText.x = (canvasWidth - nameText.width) / 2;
+    // center text vertically
+    nameText.y = (titleText.y + titleText.height + 8);
 }
 
 /**
