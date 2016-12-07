@@ -3,6 +3,12 @@ body {
     background-image: url('http://us.123rf.com/450wm/eyematrix/eyematrix1210/eyematrix121000019/16082225-repeating-black-and-grey-seamless-gear-wheels-background.jpg');
 }
 
+p {
+    padding: 5px;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
 /* main blue rounded div */
 .rounded-div {
     width: 85%;
@@ -14,34 +20,20 @@ body {
     font-family: Verdana, sans-serif;
 }
 
-/* image in each component's section */
-.section-image {
-    height: 200px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-h1 {
-    padding: 5px;
-}
-
-h1, h2 {
+h1, h3 {
     text-align: center;
 }
 
-p {
-    padding: 5px;
-    text-align: justify;
-    text-justify: inter-word;
-}
-
-/* link */
-a:link {
-    color: #42b9f4;
-}
-
-/* visited link */
-a:visited {
-    color: #42b9f4;
+/* dank looking buttons */
+.button {
+    background-color: #22EEEE;
+    border: none;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px;
+    border-radius: 10px;
 }

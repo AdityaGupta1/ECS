@@ -1,99 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Computer Parts - Home</title>
-<link rel="shortcut icon" type="image/x-icon" href="https://static.bhphoto.com/images/images500x500/CyberpowerPC_GLC1802_Fang_III_GLC1802_Desktop_1332174037000_849033.jpg"/>
-<style>
-body {
-	background-image: url('http://us.123rf.com/450wm/eyematrix/eyematrix1210/eyematrix121000019/16082225-repeating-black-and-grey-seamless-gear-wheels-background.jpg');
-	background-repeat: repeat;
-}
-h1, h2, h3, h4, h5, h6, p, form, select {
-	font-family: Verdana;
-}
-/* main blue rounded div */
-.rounded-div {
-	width: 85%;
-	margin: auto;
-	background-color: rgb(204, 255, 255);
-	box-sizing: border-box;
-	padding: 10px;
-	border-radius: 50px;
-}
-/* form-label class adds padding to the top and the bottom of each label*/
-.form-label {
-	padding-bottom: 5px;
-	padding-top: 5px;
-}
-.form-button {
-	border-radius: 5px;
-	border: 2px solid #dddddd;
-	background-color: #e5e5e5;
-}
-.form-button:hover {
-	background-color: #dddddd;
-}
-input {
-	border-radius: 4px;
-	border: 2px solid #eaeaea;
-}
-select {
-	border-radius: 4px;
-	border: 2px solid #eaeaea;
-}
-</style>
+    <meta charset="utf-8">
+    <title>Computer Parts - Home</title>
+    <link rel="shortcut icon" type="image/jpg"
+          href="https://static.bhphoto.com/images/images500x500/CyberpowerPC_GLC1802_Fang_III_GLC1802_Desktop_1332174037000_849033.jpg"/>
+    <style>
+        body {
+            background-image: url('http://us.123rf.com/450wm/eyematrix/eyematrix1210/eyematrix121000019/16082225-repeating-black-and-grey-seamless-gear-wheels-background.jpg');
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        /* main blue rounded div */
+        .rounded-div {
+            width: 85%;
+            margin: auto;
+            background-color: rgb(204, 255, 255);
+            box-sizing: border-box;
+            padding: 10px;
+            border-radius: 50px;
+            font-family: Verdana, sans-serif;
+        }
+
+        /* form-label class adds padding to the top and the bottom of each label*/
+        .form-label {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+
+        .form-button {
+            border-radius: 5px;
+            border: 2px solid #dddddd;
+            background-color: #e5e5e5;
+        }
+
+        .form-button:hover {
+            background-color: #dddddd;
+        }
+
+        input {
+            border-radius: 4px;
+            border: 2px solid #eaeaea;
+        }
+
+        select {
+            border-radius: 4px;
+            border: 2px solid #eaeaea;
+        }
+    </style>
 </head>
 
 <body>
 <div class="rounded-div">
-  <center>
     <h1>Computer Parts Form</h1>
-  </center>
-  <form action="mailto:adityag@gmail.com?subject=Hardware%20Form" method="post" enctype="text/plain" style="padding-left:10px; padding-bottom:10px">
-    <h3>Who are you?</h3>
-    <div class="form-label" required>Name:*</div>
-    <input type="text" name="name">
-    <br>
-    <div class="form-label" required>E-mail:*</div>
-    <input type="E-mail" name="email">
-    <br>
-    <div class="form-label" required>Job:*</div>
-    <input type="text" name="job">
-    <br>
-    <h3>Build your computer:</h3>
-    <div class="form-label">CPU:*</div>
-    <select id="processor" name="CPU" required>
-      <!-- AMD processors aren't allowed here because they aren't that great - my friend had one in his gaming computer and the screen froze while he was playing GTA V, but when he replaced it with an Intel processor, it worked fine. -->
-      <option value="blank" selected disabled></option>
-      <option value="i7">Intel Core i7</option>
-      <option value="i5">Intel Core i5</option>
-      <option value="i3">Intel Core i3</option>
-    </select>
-    <div class="form-label">Cooling system:*</div>
-    <input type="text" name="cooling" required>
-    <div class="form-label">Motherboard:*</div>
-    <input type="text" name="motherboard" required>
-    <div class="form-label">RAM:*</div>
-    <input type="text" name="ram" required>
-    <div class="form-label">Hard drive:*</div>
-    <input type="text" name="hard-drive" required>
-    <div class="form-label">GPU:*</div>
-    <input type="text" name="GPU" required>
-    <div class="form-label">Monitor:</div>
-    <input type="text" name="monitor">
-    <div class="form-label">Case:</div>
-    <input type="text" name="case">
-    <div class="form-label">Power supply:</div>
-    <input type="text" name="power-supply">
-    <br>
-    <br>
-    <div class="form-label">*Required field</div>
-    <br>
-    <br>
-    <button class="form-button" type="submit" value="Send">Submit</button>
-    <button class="form-button" type="reset" value="Reset">Reset</button>
-  </form>
+    <form action="mailto:adityag@gmail.com?subject=Hardware%20Form" method="post" enctype="text/plain"
+          style="padding-left:10px; padding-bottom:10px">
+        <h3>Who are you?</h3>
+        <div class="form-label" required>Name:*</div>
+        <input type="text" name="name">
+        <br>
+        <div class="form-label" required>E-mail:*</div>
+        <input type="E-mail" name="email">
+        <br>
+        <div class="form-label" required>Job:*</div>
+        <input type="text" name="job">
+        <br>
+        <h3>Build your computer:</h3>
+        <div class="form-label">CPU:*</div>
+        <select id="processor" name="CPU" required>
+            <!-- AMD processors aren't allowed here because they aren't that great - my friend had one in his gaming computer and the screen froze while he was playing GTA V, but when he replaced it with an Intel processor, it worked fine. -->
+            <option value="blank" selected disabled></option>
+            <option value="i7">Intel Core i7</option>
+            <option value="i5">Intel Core i5</option>
+            <option value="i3">Intel Core i3</option>
+        </select>
+        <div class="form-label">Cooling system:*</div>
+        <input type="text" name="cooling" required>
+        <div class="form-label">Motherboard:*</div>
+        <input type="text" name="motherboard" required>
+        <div class="form-label">RAM:*</div>
+        <input type="text" name="ram" required>
+        <div class="form-label">Hard drive:*</div>
+        <input type="text" name="hard-drive" required>
+        <div class="form-label">GPU:*</div>
+        <input type="text" name="GPU" required>
+        <div class="form-label">Monitor:</div>
+        <input type="text" name="monitor">
+        <div class="form-label">Case:</div>
+        <input type="text" name="case">
+        <div class="form-label">Power supply:</div>
+        <input type="text" name="power-supply">
+        <br>
+        <br>
+        <div class="form-label">*Required field</div>
+        <br>
+        <button class="form-button" type="submit" value="Send">Submit</button>
+        <button class="form-button" type="reset" value="Reset">Reset</button>
+    </form>
 </div>
 </body>
 </html>

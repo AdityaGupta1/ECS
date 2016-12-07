@@ -1,57 +1,48 @@
 /* repeating background image */
 body {
-	background-image: url('http://us.123rf.com/450wm/eyematrix/eyematrix1210/eyematrix121000019/16082225-repeating-black-and-grey-seamless-gear-wheels-background.jpg');
-	background-repeat: repeat;
-}
-
-h1, h2, h3, h4, h5, h6, p, form, select, .button-div {
-	font-family: Verdana;
+    background-image: url('http://us.123rf.com/450wm/eyematrix/eyematrix1210/eyematrix121000019/16082225-repeating-black-and-grey-seamless-gear-wheels-background.jpg');
 }
 
 p {
-	padding: 5px;
-	text-align: justify;
-	text-justify: inter-word;
+    padding: 5px;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 /* main blue rounded div */
 .rounded-div {
-	width: 85%;
-	margin: auto;
-	background-color: rgb(204, 255, 255);
-	box-sizing: border-box;
-	padding: 10px;
-	border-radius: 50px;
+    width: 85%;
+    margin: auto;
+    background-color: rgb(204, 255, 255);
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 50px;
+    font-family: Verdana, sans-serif;
 }
 
 /* user input radio buttons */
 .radio-choice {
-	display:table;
-	font-family: Verdana;
-	margin: auto;
-	padding-bottom:15px;
+    display: table;
+    margin: auto;
+    padding-bottom: 15px;
 }
 
 button {
-	display: table;
-	padding: 5px;
-	background-color: #BBBBBB;
-	border-radius: 5px;
-	margin: auto;
-	text-align: center;
+    display: table;
+    padding: 5px;
+    background-color: #BBBBBB;
+    border-radius: 5px;
+    margin: auto;
+    text-align: center;
 }
 
 #game-text, #choices, #count {
-	text-align: center;
-	padding: 0px;
+    text-align: center;
+    padding: 0;
 }
 
 .small-image {
-	height:40px;
-	padding:10px;
-    vertical-align:middle;
-}
-
-#heading {
-    text-align:center;
+    height: 40px;
+    padding: 10px;
+    vertical-align: middle;
 }

@@ -326,7 +326,7 @@ function startRound() {
             createEnemies(1, 'haunted_wisp', 2500, 'random', 250, [createEnemyBulletGroup('haunted_wisp_red_bullet'), createEnemyBulletGroup('haunted_wisp_purple_bullet')], [400, 200], [50, 100], 250, 20, [1, 24], pi / 12);
             break;
         case 6:
-            createEnemies(5, 'alien', 500, 'random', 200, createEnemyBulletGroup('alien_bullet'), 200, 75, 2000, 20, 5, pi / 6);
+            createEnemies(5, 'alien', 500, 'random', 200, createEnemyBulletGroup('alien_bullet'), 200, 65, 2000, 20, 5, pi / 6);
             break;
     }
 }
