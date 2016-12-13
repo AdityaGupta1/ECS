@@ -1,0 +1,5 @@
+img {
+    border-radius: 50%;
+    filter: invert(100%);
+    width: 20%;
+}
