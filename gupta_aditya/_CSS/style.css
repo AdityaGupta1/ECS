@@ -1,0 +1,21 @@
+/* repeating background image */
+body {
+    background-image: url('../_img/repeating-background.png');
+}
+
+p {
+    padding: 5px;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+/* main blue rounded div */
+.rounded-div {
+    width: 85%;
+    margin: auto;
+    background-color: rgb(204, 255, 255);
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 50px;
+    font-family: Verdana, sans-serif;
+}

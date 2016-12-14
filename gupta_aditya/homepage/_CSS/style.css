@@ -1,25 +1,3 @@
-/* repeating background image */
-body {
-    background-image: url('http://us.123rf.com/450wm/eyematrix/eyematrix1210/eyematrix121000019/16082225-repeating-black-and-grey-seamless-gear-wheels-background.jpg');
-}
-
-p {
-    padding: 5px;
-    text-align: justify;
-    text-justify: inter-word;
-}
-
-/* main blue rounded div */
-.rounded-div {
-    width: 85%;
-    margin: auto;
-    background-color: rgb(204, 255, 255);
-    box-sizing: border-box;
-    padding: 10px;
-    border-radius: 50px;
-    font-family: Verdana, sans-serif;
-}
-
 h1, h3 {
     text-align: center;
 }

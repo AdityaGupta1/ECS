@@ -1,10 +1,13 @@
 // list of style link ids
-var ids = ['body', 'p', 'h1', 'img', 'ul'];
+var ids = ['body', 'p', 'h1', 'img', 'ul', 'div'];
 // number of style sheets
-var styleSheets = 4;
+var styleSheets = 5;
 // play some dank music
 document.getElementById('danker-music').play();
 
+/**
+ * randomize the CSS documents used
+ */
 function randomCSS () {
     for (var index in ids) {
         var id = ids[index];
@@ -14,4 +17,11 @@ function randomCSS () {
 }
 
 // change CSS every 1/5 of a second
-setInterval(randomCSS, 200);
+var changeCSS = setInterval(randomCSS, 40);
+
+/**
+ * used from console to stop changing CSS (for debug)
+ */
+function stop() {
+    clearInterval(changeCSS);
+}
